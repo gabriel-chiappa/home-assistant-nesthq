@@ -1,0 +1,323 @@
+# Shared Styles
+# ============================================================================
+# This template provides shared styles for the Hemma room hero cards.
+#
+# CONFIGURABLE VARIABLES:
+#   preload_rooms: Array of room names to preload images for (light + dark)
+#                  Default: ['home', 'livingroom', 'kitchen', 'bedroom']
+#
+#   preload_night_suffix: Suffix for dark mode images (default: '-night')
+#   preload_path: Base path for room images (default: '/local/hemma/rooms')
+#   preload_extension: Image file extension (default: '.jpg')
+# ============================================================================
+hemma_shared:
+  variables:
+    # Room images to preload (for smooth transitions between rooms)
+    # Add your room names here - both light and dark variants will be preloaded
+    preload_rooms:
+      - home
+      - livingroom
+      - kitchen
+      - bedroom
+    preload_night_suffix: "-night"
+    preload_path: "/local/hemma/rooms"
+    mobile_preload_path: "/local/hemma/mobile"
+    preload_mobile_dark_suffix: "-dark"
+    preload_extension: ".jpg"
+    preload_mobile_shared_prefix: "mobile"
+    preload_mobile_shared_phases:
+      - morning
+      - day
+      - night
+
+  styles:
+    grid:
+      - grid-template-columns: 1fr max-content
+      - grid-template-areas: '"n n" "badges badges" "badges_climate badges_climate" "badges_presence badges_presence" "badges_media badges_media" "badges_lights badges_lights"'
+      - grid-template-rows: min-content min-content min-content min-content min-content min-content
+      - row-gap: 0
+      - align-content: start
+
+  extra_styles: |
+    [[[
+      const rooms = variables.preload_rooms || [];
+      const suffix = variables.preload_night_suffix || '-night';
+      const basePath = variables.preload_path || '/local/hemma/rooms';
+      const ext = variables.preload_extension || '.jpg';
+      const mobilePrefix = variables.preload_mobile_shared_prefix || 'mobile';
+      const mobilePhases = variables.preload_mobile_shared_phases || ['morning', 'day', 'night'];
+
+      if (!window.hemmaPreloadedImages) {
+        window.hemmaPreloadedImages = [];
+
+        rooms.forEach(room => {
+          const imgLight = new Image();
+          imgLight.src = `${basePath}/${room}${ext}`;
+          window.hemmaPreloadedImages.push(imgLight);
+
+          const imgDark = new Image();
+          imgDark.src = `${basePath}/${room}${suffix}${ext}`;
+          window.hemmaPreloadedImages.push(imgDark);
+        });
+
+        mobilePhases.forEach(phase => {
+          const mobilePath = variables.mobile_preload_path || '/local/hemma/mobile';
+
+          const imgLight = new Image();
+          imgLight.src = `${mobilePath}/${mobilePrefix}-${phase}${ext}`;
+          window.hemmaPreloadedImages.push(imgLight);
+
+          const imgDark = new Image();
+          imgDark.src = `${mobilePath}/${mobilePrefix}-${phase}-dark${ext}`;
+          window.hemmaPreloadedImages.push(imgDark);
+        });
+      }
+
+      return `
+
+    :host{
+      position: relative;
+      z-index: 0;
+
+      --hero-gutter: var(--content-rail,
+                      var(--hemma-rail-left,
+                      var(--page-gutter, 8vw)));
+      --hero-top: var(--header-top-desktop, clamp(220px, 26vh, 340px));
+      --hero-temp-font-size: var(--hero-temp-font-size-desktop, 18px);
+      --hero-temp-font-weight: 600;
+      --hero-temp-letter-spacing: 0.04em;
+      --hero-temp-reserve: calc(var(--hero-temp-font-size) * 1.2);
+      --hero-header-gap-current: var(--hero-header-gap-desktop, 6px);
+      --hero-img-blur-current: var(--hero-img-blur, 4px) !important;
+      --hero-img-scale-current: var(--hero-img-scale, 1.08);
+      --hero-img-filter: blur(var(--hero-img-blur-current))
+        saturate(var(--hero-img-saturate, 1.02))
+        brightness(var(--hero-img-brightness, .985));
+      --hero-img-filter-from: blur(var(--hero-img-blur-current))
+        saturate(var(--hero-img-saturate-from, 1.0))
+        brightness(var(--hero-img-brightness-from, .97));
+      --hemma-hover-filter: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      --mdc-ripple-press-opacity: 0 !important;
+    }
+
+    :host ha-card{
+      position: relative;
+      pointer-events: auto !important;
+      cursor: default !important;
+      filter: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      box-shadow: none !important;
+      --ha-card-box-shadow: none !important;
+      transition: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      --mdc-ripple-press-opacity: 0 !important;
+      background-repeat: no-repeat, no-repeat !important;
+      background-position: center center, center center !important;
+      background-size: cover, cover !important;
+      background-attachment: local, local !important;
+      isolation: isolate !important;
+      overflow-x: hidden !important;
+      overflow-y: hidden !important;
+    }
+
+    :host ha-card:hover,
+    :host ha-card:focus-within,
+    :host ha-card:active{
+      filter:none !important;
+      box-shadow:none !important;
+      transform:none !important;
+      cursor:default !important;
+      --ha-card-box-shadow: none !important;
+    }
+
+    /* Background image */
+    :host ha-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      pointer-events:none;
+      z-index:-10;
+      background-image: var(--hero-img);
+      background-position: var(--hero-img-pos, center center);
+      background-size: cover;
+      background-repeat: no-repeat;
+      opacity:1;
+      filter: var(--hero-img-filter);
+      transform: scale(var(--hero-img-scale-current, 1.08)) !important;
+      transform-origin: center;
+      transition: opacity .35s ease, filter .35s ease, transform .35s ease;
+      will-change: opacity, filter, transform;
+      animation: heroSwap .35s ease;
+    }
+
+    :host ha-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      pointer-events:none;
+      z-index:-9;
+      background: var(--hero-tint, rgba(56,56,56,0.50))
+    }
+
+    @keyframes heroSwap{
+      from{ opacity:0; filter: var(--hero-img-filter-from, var(--hero-img-filter)); }
+      to{   opacity:1; filter: var(--hero-img-filter); }
+    }
+
+    @keyframes hemmaRoomReveal{
+      from{ background: rgba(56,56,56,0.8); }
+      to{   background: var(--hero-tint, rgba(56,56,56,0.50)); }
+    }
+
+    /* Mobile */
+    @media (max-width: 767px), (max-height: 500px){
+      :host{
+        --hero-img-blur: 0px !important;
+        --hero-img-saturate: var(--hero-img-saturate-mobile, 1.02);
+        --hero-img-brightness: var(--hero-img-brightness-mobile, .985);
+        --hero-img-scale-current: 1 !important;
+        --hero-tint: var(--hero-tint-mobile, rgba(56,56,56,0.50));
+        --hero-top: calc(var(--header-top-mobile, clamp(80px, 12vh, 120px)) - var(--header-top-mobile-nudge, 0px));
+        --hero-temp-font-size: var(--hero-temp-font-size-mobile, 13px);
+        --hero-temp-reserve: 0px;
+        --hero-header-gap-current: var(--hero-header-gap-mobile, 5px);
+        --tiles-pad-bottom: calc(
+          var(--hemma-nav-height, 112px)
+          + env(safe-area-inset-bottom, 0px)
+          - 6px
+        );
+        --hero-gutter: var(--content-rail,
+                      var(--hemma-rail-left,
+                      var(--page-gutter-mobile, 10px)));
+        --hemma-header-shield-h: calc(var(--hero-top) + var(--hemma-header-stack-h-current, 240px));
+      }
+
+      :host ha-card::after{
+        animation: none !important;
+        transition: none !important;
+        filter:
+          saturate(var(--hero-img-saturate-mobile, 1.02))
+          brightness(var(--hero-img-brightness-mobile, .985)) !important;
+        transform: scale(1) !important;
+      }
+
+      :host ha-card{
+        position: fixed !important;
+        inset: 0 !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        touch-action: none !important;
+        overscroll-behavior: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: transparent !important;
+      }
+
+      :host .button-card-main{
+        position: fixed !important;
+        inset: 0 !important;
+        overflow: hidden !important;
+        padding:
+          var(--hero-top)
+          var(--hero-gutter)
+          var(--tiles-pad-bottom)
+          var(--hero-gutter) !important;
+      }
+
+      :host .container{
+        position: relative !important;
+        inset: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        overflow-x: hidden !important;
+      }
+
+      :host .button-card-content,
+      :host .grid{
+        padding:0 !important;
+        margin:0 !important;
+        overflow:visible !important;
+        display:grid !important;
+      }
+    }
+
+    @media (max-width: 767px) and (orientation: portrait){
+      :host{
+        --hero-temp-reserve: 0px;
+      }
+
+      #name,
+      .name,
+      .button-card-name{
+        margin-bottom: var(--hero-title-to-badges-gap-mobile, 8px) !important;
+      }
+    }
+
+    @media (max-height: 500px) and (orientation: landscape){
+      :host{
+        --hero-gutter: 18px;
+        --hero-top: calc(env(safe-area-inset-top, 0px) + 96px + var(--hemma-hero-top-landscape-nudge, 0px));
+        --tiles-pad-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      }
+
+      :host .button-card-main{
+        padding:
+          var(--hero-top)
+          calc(18px + env(safe-area-inset-right, 0px))
+          calc(16px + env(safe-area-inset-bottom, 0px))
+          calc(18px + env(safe-area-inset-left, 0px)) !important;
+      }
+    }
+
+    @media (max-width: 767px){
+      :host{
+        --hero-weather-title-size: 16px;
+        --hero-weather-sub-size: 13px;
+        --hero-weather-icon-size: 26px;
+      }
+    }
+
+    @media (max-width: 767px) and (orientation: portrait) and (pointer: coarse),
+           (max-width: 767px) and (orientation: portrait) and (hover: none) {
+      :host .button-card-content,
+      :host .grid {
+        grid-template-areas: "n weather" "badges badges" "badges_climate badges_climate" "badges_presence badges_presence" "badges_media badges_media" "badges_lights badges_lights" !important;
+        grid-template-rows: min-content min-content min-content min-content min-content min-content !important;
+      }
+
+    }
+
+    @media (orientation: landscape) and (pointer: coarse),
+           (orientation: landscape) and (hover: none) {
+      :host #weather {
+        display: none !important;
+      }
+    }
+
+    /* Tablet touch (iPad) — prevent pull-to-refresh / background scroll bounce.
+       min-height: 601px excludes landscape phones (already handled by the
+       max-height: 600px landscape-mobile block above). */
+    @media (min-width: 768px) and (min-height: 601px) and (pointer: coarse),
+           (min-width: 768px) and (min-height: 601px) and (hover: none) {
+      :host ha-card {
+        position: fixed !important;
+        inset: 0 !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+        touch-action: none !important;
+        overscroll-behavior: none !important;
+      }
+    }`;
+    ]]]

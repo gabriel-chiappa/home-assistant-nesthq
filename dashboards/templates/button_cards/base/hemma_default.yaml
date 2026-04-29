@@ -1,0 +1,10 @@
+hemma_default:
+  styles:
+    card:
+      - "--button-card-ripple-color": transparent
+      - "-webkit-tap-highlight-color": transparent
+      - position: relative
+      - border-radius: 0
+      - padding: 0
+      - margin: 0
+      - box-shadow: var(--ha-card-box-shadow)

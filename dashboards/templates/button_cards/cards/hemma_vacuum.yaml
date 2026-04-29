@@ -1,0 +1,58 @@
+hemma_vacuum:
+  template: [hemma_entity]
+
+  show_entity_picture: true
+  show_icon: false
+  show_label: false
+
+  name: Vacuum
+
+  tap_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  hold_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  icon_tap_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  icon_hold_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  triggers_update:
+    - '[[[ return entity?.entity_id ]]]'
+
+  entity_picture: |
+    [[[
+      const s = (entity?.state || '').toLowerCase();
+      if (s === 'cleaning' || s === 'returning') return '/local/hemma/icons/vacuum-clean.svg';
+      if (s === 'charging')                      return '/local/hemma/icons/vacuum-charge.svg';
+      return '/local/hemma/icons/vacuum.svg';
+    ]]]
+
+  show_entity_picture: |
+    [[[
+      const s = (entity?.state || '').toLowerCase();
+      return !['unknown', 'unavailable'].includes(s);
+    ]]]
+
+  extra_styles: |
+    #img-cell { overflow: visible !important; }
+    @media (hover: hover) {
+      #img-cell:hover img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+        transform: scale(1.05);
+      }
+    }
+    @media (hover: none) {
+      #img-cell:active img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+        transform: scale(1.05);
+      }
+    }

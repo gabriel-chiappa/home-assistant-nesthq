@@ -1,0 +1,221 @@
+# /config/dashboards/hemma/hemma.yaml
+# Hemma Dashboard Configuration
+# ============================================================================
+
+button_card_templates: !include_dir_merge_named /config/dashboards/templates/button_cards
+
+# kiosk_mode:
+#   hide_header: true
+#   hide_sidebar: false
+#   hide_dialog_light_settings_actions: true
+#   hide_dialog_logbook: true
+#   mobile_settings:
+#     hide_header: true
+#     hide_sidebar: false
+#   user_settings:
+#     - users:
+#         - "tablet"
+#       hide_header: true
+#       hide_sidebar: false
+#       hide_dialog_logbook: true
+#       hide_dialog_light_settings_actions: true
+#       hide_dialog_header_breadcrumb_navigation: true
+#       hide_dialog_header_history: true
+#       hide_dialog_attributes: true
+
+views:
+  # ------------------------------------------------------
+  # HOME
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: home
+    path: home
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Home
+        variables:
+          image: home
+          image_position: center center
+
+          show_climate: false
+
+          show_lights: false
+
+          show_weather: true
+          weather_entity: weather.forecast_home
+          weather_temp_sensor: sensor.nws_40_7375014_73_9020664_klga_temperature
+          temp_unit: 'F'
+
+          show_presence: true
+          presence_entity_1: person.gabrielchiappa
+
+          show_media: true
+          show_media_player_1: true
+          media_player_1: media_player.apple_tv_4k
+          show_media_player_2: true
+          media_player_2: media_player.samsung_bedroom_tv
+          show_media_player_3: true
+          media_player_3: media_player.echo_dot
+          show_media_player_4: true
+          media_player_4: media_player.echo_show
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_network
+            entity: sensor.speedtest_download
+            name: Network
+            variables:
+              upload_sensor: sensor.speedtest_upload
+
+
+  # ------------------------------------------------------
+  # OFFICE
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: office
+    path: office
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Office
+        variables:
+          image: livingroom
+          image_position: center center
+
+          show_climate: false
+
+          show_lights: true
+          light_entity_1: light.office_lights
+
+          show_weather: false
+          temp_unit: 'F'
+
+          show_media: true
+          show_media_player_1: true
+          media_player_1: media_player.apple_tv_4k
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_media
+            entity: media_player.apple_tv_4k
+            name: Apple TV
+            variables:
+              icon: apple_tv
+              show_progress: true
+              progress_entity: media_player.apple_tv_4k
+
+  # ------------------------------------------------------
+  # KITCHEN
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: kitchen
+    path: kitchen
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Kitchen
+        variables:
+          image: kitchen
+          image_position: center center
+
+          show_climate: false
+
+          show_weather: false
+          temp_unit: 'F'
+
+          show_lights: false
+
+          show_media: true
+          show_media_player_1: true
+          media_player_1: media_player.echo_dot
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_media
+            entity: media_player.echo_dot
+            name: Echo Dot
+            variables:
+              icon: speaker
+
+          - type: custom:button-card
+            template: hemma_media
+            entity: media_player.echo_show
+            name: Echo Show
+            variables:
+              icon: speaker
+
+  # ------------------------------------------------------
+  # BEDROOM
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: bedroom
+    path: bedroom
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Bedroom
+        variables:
+          image: bedroom
+          image_position: center center
+
+          show_climate: false
+
+          show_weather: false
+          temp_unit: 'F'
+
+          show_lights: true
+          light_entity_1: light.bedroom_lights
+
+          show_media: true
+          show_media_player_1: true
+          media_player_1: media_player.samsung_bedroom_tv
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_media
+            entity: media_player.samsung_bedroom_tv
+            name: TV
+            variables:
+              icon: tv
+              show_toggle: true

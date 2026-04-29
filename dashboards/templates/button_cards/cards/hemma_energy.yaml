@@ -1,0 +1,51 @@
+hemma_energy:
+  template:
+    - hemma_entity
+
+  show_name: true
+  show_state: true
+  show_entity_picture: true
+
+  variables:
+    icon: energy
+    high_threshold: 500
+
+  tap_action:
+    action: more-info
+
+  icon_tap_action:
+    action: more-info
+
+  hold_action:
+    action: more-info
+
+  name: Current Consumption
+
+  state_display: |
+    [[[
+      const w = parseFloat(entity?.state);
+      if (!Number.isFinite(w)) return '— W';
+      return Math.round(w) + ' W';
+    ]]]
+
+  state:
+    - operator: template
+      value: |
+        [[[
+          const w = parseFloat(entity?.state);
+          return Number.isFinite(w) && w >= Number(variables.high_threshold ?? 500);
+        ]]]
+      styles:
+        card:
+          - background: var(--hemma-entity-background-active)
+          - box-shadow: var(--button-card-box-shadow-active, var(--button-card-box-shadow)) !important
+        name:
+          - color: var(--hemma-entity-name-active, var(--primary-text-color))
+        state:
+          - color: var(--hemma-entity-state-active-color)
+        img_cell:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important
+        entity_picture:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important

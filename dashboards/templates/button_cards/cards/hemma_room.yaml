@@ -1,0 +1,1730 @@
+# Room
+hemma_room:
+  class: "hemma-room"
+  template:
+    - hemma_default
+    - hemma_shared
+
+  triggers_update:
+    - '[[[ return variables.temp_sensor_1 ]]]'
+    - '[[[ return variables.temp_sensor_2 ]]]'
+    - '[[[ return variables.temp_sensor_3 ]]]'
+    - '[[[ return variables.temp_sensor_4 ]]]'
+    - '[[[ return variables.temp_sensor_5 ]]]'
+    - '[[[ return variables.quality_sensor ]]]'
+    - '[[[ return variables.humidity_sensor ]]]'
+    - '[[[ return variables.presence_entity_1 ]]]'
+    - '[[[ return variables.presence_entity_2 ]]]'
+    - '[[[ return variables.presence_entity_3 ]]]'
+    - '[[[ return variables.presence_entity_4 ]]]'
+    - '[[[ return variables.media_player_1 ]]]'
+    - '[[[ return variables.media_player_2 ]]]'
+    - '[[[ return variables.media_player_3 ]]]'
+    - '[[[ return variables.media_player_4 ]]]'
+    - '[[[ return variables.media_player_5 ]]]'
+    - '[[[ return variables.media_player_6 ]]]'
+    - '[[[ return variables.media_player_7 ]]]'
+    - '[[[ return variables.media_player_8 ]]]'
+    - '[[[ return variables.media_player_9 ]]]'
+    - '[[[ return variables.media_player_10 ]]]'
+    - '[[[ return variables.light_entity_1 ]]]'
+    - '[[[ return variables.light_entity_2 ]]]'
+    - '[[[ return variables.light_entity_3 ]]]'
+    - '[[[ return variables.light_entity_4 ]]]'
+    - '[[[ return variables.light_entity_5 ]]]'
+    - '[[[ return variables.light_entity_6 ]]]'
+    - '[[[ return variables.light_entity_7 ]]]'
+    - '[[[ return variables.light_entity_8 ]]]'
+    - '[[[ return variables.light_entity_9 ]]]'
+    - '[[[ return variables.light_entity_10 ]]]'
+    - '[[[ return variables.image ]]]'
+    - '[[[ return variables.image_night ]]]'
+    - '[[[ return variables.image_position ]]]'
+    - '[[[ return variables.mobile_background_entity || "sensor.hemma_mobile_dynamic_background" ]]]'
+    - '[[[ return variables.show_weather ]]]'
+    - '[[[ return variables.weather_entity ]]]'
+    - '[[[ return variables.weather_temp_sensor ]]]'
+    - '[[[ return variables.climate_entity_1 ]]]'
+    - '[[[ return variables.climate_entity_2 ]]]'
+    - '[[[ return variables.climate_entity_3 ]]]'
+    - input_boolean.hemma_mobile_navigation
+    - input_select.hemma_expanded_row
+
+  variables:
+    image:
+    image_night:
+    image_position:
+    mobile_background: false
+    mobile_background_entity: sensor.hemma_mobile_dynamic_background
+
+    show_climate: false
+    show_climate_inline: false  # true = show individual badges (temp/humidity/air quality) directly on the top row instead of the group badge
+    climate_entity_1:
+    climate_entity_2:
+    climate_entity_3:
+
+    temp_sensor_1:
+    temp_sensor_2:
+    temp_sensor_3:
+    temp_sensor_4:
+    temp_sensor_5:
+    temp_unit: 'F'  # 'F' or 'C' — sets comfort-level thresholds on the temperature sub-badge
+
+    humidity_sensor:
+
+    quality_sensor:
+
+    show_presence: false
+    presence_entity_1:
+    presence_entity_2:
+    presence_entity_3:
+    presence_entity_4:
+
+    show_media: false
+    pause_timeout_minutes: 5
+
+    show_media_player_1: false
+    media_player_1:
+
+    show_media_player_2: false
+    media_player_2:
+
+    show_media_player_3: false
+    media_player_3:
+
+    show_media_player_4: false
+    media_player_4:
+
+    show_media_player_5: false
+    media_player_5:
+
+    show_media_player_6: false
+    media_player_6:
+
+    show_media_player_7: false
+    media_player_7:
+
+    show_media_player_8: false
+    media_player_8:
+
+    show_media_player_9: false
+    media_player_9:
+
+    show_media_player_10: false
+    media_player_10:
+
+    show_lights: false
+    light_group_entity:
+    light_entity_1:
+    light_entity_2:
+    light_entity_3:
+    light_entity_4:
+    light_entity_5:
+    light_entity_6:
+    light_entity_7:
+    light_entity_8:
+    light_entity_9:
+    light_entity_10:
+
+    show_weather: false
+    weather_entity:
+    weather_temp_sensor:
+
+  tap_action: { action: none }
+  hold_action: { action: none }
+  double_tap_action: { action: none }
+
+  styles:
+    card:
+      - height: 100svh
+      - padding-top: >
+          [[[
+            const mm = (q) => (window.matchMedia ? window.matchMedia(q).matches : false);
+            const isPhonePortrait =
+              (mm('(pointer: coarse)') || mm('(hover: none)')) &&
+              mm('(max-width: 767px)') &&
+              mm('(orientation: portrait)');
+
+            const base = 'var(--hero-top)';
+            return isPhonePortrait ? `calc(${base} - 20px)` : base;
+          ]]]
+      - padding-left: var(--hero-gutter)
+      - padding-right: var(--hero-gutter)
+      - padding-bottom: >
+          [[[
+            const mm = (q) => (window.matchMedia ? window.matchMedia(q).matches : false);
+            const isPhonePortrait =
+              (mm('(pointer: coarse)') || mm('(hover: none)')) &&
+              mm('(max-width: 767px)') &&
+              mm('(orientation: portrait)');
+
+            return isPhonePortrait
+              ? `calc(var(--hemma-nav-height, 112px) + env(safe-area-inset-bottom, 0px) + var(--hemma-entity-mobile-gap-above-nav, 20px))`
+              : `calc(130px + env(safe-area-inset-bottom))`;
+          ]]]
+      - box-shadow: none !important
+      - --hero-img-scale: 1.08
+      - --hero-img: >
+          [[[ 
+            const w = window?.innerWidth || 1024;
+            const h = window?.innerHeight || 800;
+            const isMobile = (w <= 767 || h <= 500);
+            const isDark =
+              typeof hass?.themes?.darkMode === 'boolean'
+                ? hass.themes.darkMode
+                : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (isMobile && (variables.mobile_background ?? false)) {
+              const phaseEntity = variables.mobile_background_entity || 'sensor.hemma_mobile_dynamic_background';
+              const phaseRaw = String(states[phaseEntity]?.state || 'day').toLowerCase();
+
+              let phase = 'day';
+              if (['morning', 'dawn'].includes(phaseRaw)) phase = 'morning';
+              else if (['day', 'midday', 'afternoon', 'goldenhour'].includes(phaseRaw)) phase = 'day';
+              else if (['night', 'sunset', 'evening'].includes(phaseRaw)) phase = 'night';
+
+              return `url("/local/hemma/mobile/mobile-${phase}${isDark ? '-dark' : ''}.jpg")`;
+            }
+
+            const base = variables.image || 'default';
+            const picked = isDark ? (variables.image_night || `${base}-night`) : base;
+            return `url("/local/hemma/rooms/${picked}.jpg")`;
+          ]]]
+      - --hero-img-pos: >
+          [[[
+            return variables.image_position || 'center center';
+          ]]]
+      - --hemma-time-nav-open: >
+          [[[
+            const navOpen = states['input_boolean.hemma_mobile_navigation']?.state === 'on';
+            return navOpen ? 'none' : 'block';
+          ]]]
+      - --hemma-time-reserve: >
+          [[[
+            const w = window?.innerWidth || 1024;
+            const h = window?.innerHeight || 800;
+            const isTablet = (w >= 768 && w <= 1366 && h > 500);
+            return isTablet ? '140px' : '160px';
+          ]]]
+      - --hemma-room-nav: >
+          [[[
+            const k = variables.image || 'default';
+            const prev = window._hemmaRoomNav;
+            if (!prev || prev.key !== k) {
+              window._hemmaRoomNav = { key: k };
+              const isActive = eid => {
+                if (!eid) return false;
+                const s = hass.states[eid];
+                if (!s) return false;
+                const st = (s.state || '').toLowerCase();
+                if (['playing','buffering','on'].includes(st)) return true;
+                if (st === 'paused') {
+                  const a = s.attributes || {};
+                  const hasContent = !!(
+                    String(a.media_title || '').trim() ||
+                    String(a.media_artist || a.artist || a.media_album_artist || '').trim()
+                  );
+                  if (!hasContent) return false;
+                  const timeout = Number(variables.pause_timeout_minutes ?? 5);
+                  if (timeout <= 0) return true;
+                  return ((new Date() - new Date(s.last_changed)) / 60000) <= timeout;
+                }
+                return false;
+              };
+              const mediaEids = [
+                variables.show_media_player_1 && variables.media_player_1,
+                variables.show_media_player_2 && variables.media_player_2,
+                variables.show_media_player_3 && variables.media_player_3,
+                variables.show_media_player_4 && variables.media_player_4,
+                variables.show_media_player_5 && variables.media_player_5,
+                variables.show_media_player_6 && variables.media_player_6,
+                variables.show_media_player_7 && variables.media_player_7,
+                variables.show_media_player_8 && variables.media_player_8,
+                variables.show_media_player_9 && variables.media_player_9,
+                variables.show_media_player_10 && variables.media_player_10,
+                variables.show_plex_1 && variables.plex_binary_1,
+                variables.show_plex_2 && variables.plex_binary_2,
+                variables.show_psn_1 && variables.psn_1,
+                variables.show_psn_2 && variables.psn_2,
+              ].filter(Boolean);
+              const _steamOnline = variables.show_discord_steam && variables.discord_steam_online && variables.discord_steam_game &&
+                (hass.states[variables.discord_steam_online]?.state || '').toLowerCase() === 'online';
+              const _steamGame = String(hass.states[variables.discord_steam_game]?.state || '').toLowerCase();
+              const steamActive = _steamOnline && !!_steamGame && _steamGame !== 'unknown' && _steamGame !== 'unavailable';
+              const opt = (mediaEids.some(isActive) || steamActive) ? 'media' : 'none';
+              hass.callService('input_select', 'select_option', {
+                entity_id: 'input_select.hemma_expanded_row',
+                option: opt
+              });
+            }
+            return k;
+          ]]]
+
+    name:
+      - grid-area: n
+      - color: var(--primary-text-color)
+      - opacity: 0.9
+      - font-size: var(--hero-room-name-size-current, clamp(48px, 6vw + 12px, 100px))
+      - letter-spacing: var(--hero-room-name-letter-spacing-current, -2px)
+      - font-weight: 700
+      - justify-self: start
+      - padding-left: 0
+      - line-height: var(--hero-room-name-line-height-current, 1.2)
+      - margin-left: var(--hero-room-name-margin-left-current, 0px)
+      - overflow: visible
+
+    grid: []  # Inherits from hemma_shared
+
+    custom_fields:
+      temperature:
+        - grid-area: temperature
+        - display: >
+            [[[
+              const w = window?.innerWidth || 1024;
+              const h = window?.innerHeight || 800;
+              const isMobileSize = w <= 767 || h <= 500;
+              return (!isMobileSize && !!variables.show_weather) ? 'block' : 'none';
+            ]]]
+        - position: absolute
+        - top: >
+            calc(
+              var(--hero-top)
+              + var(--hero-temp-reserve, 22px)
+              + var(--hero-header-gap-current, 6px)
+              - var(--hero-weather-hero-height, 48px)
+              + var(--hero-weather-hero-nudge, -12px))
+        - left: >
+            calc(
+              var(--hero-gutter)
+              + var(--hero-room-name-margin-left-current, 0px)
+              + var(--hemma-header-temp-nudge, 0px))
+        - z-index: 5
+        - pointer-events: auto
+        - cursor: pointer
+        - overflow: visible
+        - color: var(--primary-text-color)
+        - background: transparent !important
+        - background-color: transparent !important
+
+      time:
+        - position: fixed
+        - z-index: 10
+        - pointer-events: auto
+        - "--mdc-ripple-press-opacity": 0
+        - "-webkit-tap-highlight-color": transparent
+        - "--ha-card-padding": "0px"
+
+      weather:
+        - grid-area: weather
+        - display: >
+            [[[
+              const mm = (q) => (window.matchMedia ? window.matchMedia(q).matches : false);
+              const isPhonePortrait =
+                (mm('(pointer: coarse)') || mm('(hover: none)')) &&
+                mm('(max-width: 767px)') &&
+                mm('(orientation: portrait)');
+              const hasData = !!(variables.weather_entity || variables.weather_temp_sensor);
+              const ok = !!variables.show_weather && hasData;
+              return (isPhonePortrait && ok) ? 'block' : 'none';
+            ]]]
+        - position: absolute
+        - top: >
+            calc(
+              var(--hero-top)
+              + var(--hero-room-name-size-current, 38px) * var(--hero-room-name-line-height-current, 1.1)
+              - var(--hero-weather-title-size, 16px)
+              - var(--hero-weather-sub-size, 13px) * 1.1
+              - 1px
+              + var(--hemma-weather-bottom-nudge, 0px))
+        - left: var(--hero-gutter, var(--page-gutter-mobile, 11px))
+        - right: calc(var(--hero-gutter, var(--page-gutter-mobile, 11px)) + 6px)
+        - z-index: 10
+        - text-align: right
+        - justify-self: end
+        - margin: 0
+        - width: auto
+        - max-width: none
+        - overflow: visible
+        - pointer-events: auto
+
+      badges:
+        - grid-area: badges
+        - justify-self: start !important
+        - align-self: start !important
+        - place-self: start !important
+        - text-align: left !important
+        - margin-left: >
+            calc(
+              var(--hero-room-name-margin-left-current, 0px) +
+              var(--hemma-header-badge-nudge, 0px))
+        - margin-right: auto !important
+        - width: max-content
+        - max-width: 100%
+        - margin-top: var(--hero-header-gap-current, 6px)
+        - margin-bottom: 0
+        - padding-left: 0
+        - pointer-events: auto
+        - height: auto !important
+        - display: >
+            [[[
+              return (states['input_boolean.hemma_mobile_navigation']?.state === 'on')
+                ? 'none'
+                : 'block';
+            ]]]
+
+      badges_climate:
+        - grid-area: badges_climate
+        - justify-self: start !important
+        - align-self: start !important
+        - place-self: start !important
+        - text-align: left !important
+        - margin-left: >
+            calc(
+              var(--hero-room-name-margin-left-current, 0px) +
+              var(--hemma-header-badge-nudge, 0px))
+        - margin-right: auto !important
+        - width: max-content
+        - max-width: 100%
+        - margin-top: >
+            [[[
+              if (!variables.show_climate || variables.show_climate_inline) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'climate'
+                ? 'var(--hero-header-gap-current, 6px)' : '0';
+            ]]]
+        - margin-bottom: 0
+        - padding-left: 0
+        - pointer-events: auto
+        - height: auto !important
+        - display: >
+            [[[
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 'none';
+              if (!variables.show_climate || variables.show_climate_inline) return 'none';
+              return 'block';
+            ]]]
+        - max-height: >
+            [[[
+              if (!variables.show_climate || variables.show_climate_inline) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'climate' ? '200px' : '0';
+            ]]]
+        - overflow-x: auto
+        - overflow-y: hidden
+        - --hemma-row-fade: >
+            [[[
+              if (!variables.show_climate || variables.show_climate_inline) return 0;
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 0;
+              return states['input_select.hemma_expanded_row']?.state === 'climate' ? 1 : 0;
+            ]]]
+        - transition: >
+            [[[
+              const isExpanded = states['input_select.hemma_expanded_row']?.state === 'climate';
+              if (isExpanded) return 'max-height 0s, margin-top 0s';
+              const isSwitching = states['input_select.hemma_expanded_row']?.state !== 'none';
+              return isSwitching
+                ? 'max-height 0s, margin-top 0s'
+                : 'max-height 0s 0.35s, margin-top 0s 0.35s';
+            ]]]
+        - pointer-events: >
+            [[[
+              return states['input_select.hemma_expanded_row']?.state === 'climate' ? 'auto' : 'none';
+            ]]]
+
+      badges_presence:
+        - grid-area: badges_presence
+        - justify-self: start !important
+        - align-self: start !important
+        - place-self: start !important
+        - text-align: left !important
+        - margin-left: >
+            calc(
+              var(--hero-room-name-margin-left-current, 0px) +
+              var(--hemma-header-badge-nudge, 0px))
+        - margin-right: auto !important
+        - width: max-content
+        - max-width: 100%
+        - margin-top: >
+            [[[
+              if (!variables.show_presence) return '0';
+              if (variables.presence_entity_1 && !variables.presence_entity_2) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'presence'
+                ? 'var(--hero-header-gap-current, 6px)' : '0';
+            ]]]
+        - margin-bottom: 0
+        - padding-left: 0
+        - height: auto !important
+        - display: >
+            [[[
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 'none';
+              if (!variables.show_presence) return 'none';
+              if (variables.presence_entity_1 && !variables.presence_entity_2) return 'none';
+              return 'block';
+            ]]]
+        - max-height: >
+            [[[
+              if (!variables.show_presence) return '0';
+              if (variables.presence_entity_1 && !variables.presence_entity_2) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'presence' ? '200px' : '0';
+            ]]]
+        - overflow-x: auto
+        - overflow-y: hidden
+        - --hemma-row-fade: >
+            [[[
+              if (!variables.show_presence) return 0;
+              if (variables.presence_entity_1 && !variables.presence_entity_2) return 0;
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 0;
+              return states['input_select.hemma_expanded_row']?.state === 'presence' ? 1 : 0;
+            ]]]
+        - transition: >
+            [[[
+              const isExpanded = states['input_select.hemma_expanded_row']?.state === 'presence';
+              if (isExpanded) return 'max-height 0s, margin-top 0s';
+              const isSwitching = states['input_select.hemma_expanded_row']?.state !== 'none';
+              return isSwitching
+                ? 'max-height 0s, margin-top 0s'
+                : 'max-height 0s 0.35s, margin-top 0s 0.35s';
+            ]]]
+        - pointer-events: >
+            [[[
+              return states['input_select.hemma_expanded_row']?.state === 'presence' ? 'auto' : 'none';
+            ]]]
+
+      badges_media:
+        - grid-area: badges_media
+        - justify-self: start !important
+        - align-self: start !important
+        - place-self: start !important
+        - text-align: left !important
+        - margin-top: >
+            [[[
+              if (!variables.show_media) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'media'
+                ? 'var(--hero-header-gap-current, 6px)' : '0';
+            ]]]
+        - margin-right: auto !important
+        - margin-left: >
+            calc(
+              var(--hero-room-name-margin-left-current, 0px) +
+              var(--hemma-header-badge-nudge, 0px) +
+              var(--hemma-header-media-badge-nudge-current, 0px))
+        - padding-left: 0
+        - padding-top: 0px !important
+        - padding-bottom: 0px !important
+        - height: auto !important
+        - opacity: var(--hemma-row-fade, 0)
+        - min-height: 0 !important
+        - width: max-content
+        - max-width: 100%
+        - display: >
+            [[[
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 'none';
+              if (!variables.show_media) return 'none';
+              return 'block';
+            ]]]
+        - max-height: >
+            [[[
+              if (!variables.show_media) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'media' ? '500px' : '0';
+            ]]]
+        - overflow-x: auto
+        - overflow-y: hidden
+        - --hemma-row-fade: >
+            [[[
+              if (!variables.show_media) return 0;
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 0;
+              return states['input_select.hemma_expanded_row']?.state === 'media' ? 1 : 0;
+            ]]]
+        - transition: >
+            [[[
+              const isExpanded = states['input_select.hemma_expanded_row']?.state === 'media';
+
+              if (isExpanded) {
+                return 'max-height 0s, margin-top 0s, opacity 0s';
+              }
+
+              const isSwitching = states['input_select.hemma_expanded_row']?.state !== 'none';
+
+              return isSwitching
+                ? 'max-height 0s, margin-top 0s, opacity 0.22s ease'
+                : 'max-height 0s 0.35s, margin-top 0s 0.35s, opacity 0.22s ease';
+            ]]]
+        - pointer-events: >
+            [[[
+              return states['input_select.hemma_expanded_row']?.state === 'media' ? 'auto' : 'none';
+            ]]]
+
+      badges_lights:
+        - grid-area: badges_lights
+        - justify-self: start !important
+        - align-self: start !important
+        - place-self: start !important
+        - text-align: left !important
+        - margin-left: >
+            calc(
+              var(--hero-room-name-margin-left-current, 0px) +
+              var(--hemma-header-badge-nudge, 0px))
+        - margin-right: auto !important
+        - width: max-content
+        - max-width: 100%
+        - margin-top: >
+            [[[
+              if (!variables.show_lights) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'lights'
+                ? 'var(--hero-header-gap-current, 6px)' : '0';
+            ]]]
+        - margin-bottom: 0
+        - padding-left: 0
+        - pointer-events: auto
+        - height: auto !important
+        - display: >
+            [[[
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 'none';
+              if (!variables.show_lights) return 'none';
+              return 'block';
+            ]]]
+        - max-height: >
+            [[[
+              if (!variables.show_lights) return '0';
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return '0';
+              return states['input_select.hemma_expanded_row']?.state === 'lights' ? '200px' : '0';
+            ]]]
+        - overflow-x: auto
+        - overflow-y: hidden
+        - --hemma-row-fade: >
+            [[[
+              if (!variables.show_lights) return 0;
+              if (states['input_boolean.hemma_mobile_navigation']?.state === 'on') return 0;
+              return states['input_select.hemma_expanded_row']?.state === 'lights' ? 1 : 0;
+            ]]]
+        - transition: >
+            [[[
+              const isExpanded = states['input_select.hemma_expanded_row']?.state === 'lights';
+              if (isExpanded) return 'max-height 0s, margin-top 0s';
+              const isSwitching = states['input_select.hemma_expanded_row']?.state !== 'none';
+              return isSwitching
+                ? 'max-height 0s, margin-top 0s'
+                : 'max-height 0s 0.35s, margin-top 0s 0.35s';
+            ]]]
+        - pointer-events: >
+            [[[
+              return states['input_select.hemma_expanded_row']?.state === 'lights' ? 'auto' : 'none';
+            ]]]
+
+      navigation:
+        - position: fixed
+        - top: 46px
+        - left: 0
+        - right: 0
+        - z-index: 50
+        - overflow: visible
+        - pointer-events: auto
+        - "--mdc-ripple-press-opacity": 0
+        - "-webkit-tap-highlight-color": transparent
+        - filter: none
+
+      menu:
+        - position: fixed
+        - top: 8px
+        - left: >
+            [[[
+              const w = window?.innerWidth || 1024;
+              const h = window?.innerHeight || 800;
+
+              if (w <= 767 || h <= 500) {
+                return 'calc(var(--hero-gutter) - 11px)';
+              }
+
+              return 'calc(var(--hero-gutter) - 6px)';
+            ]]]
+        - width: 40px
+        - height: 40px
+        - z-index: 10
+        - pointer-events: auto
+        - cursor: pointer
+
+      preload:
+        - display: none
+        - width: 0
+        - height: 0
+        - opacity: 0
+        - overflow-x: auto
+        - overflow-y: hidden
+        - position: fixed
+        - pointer-events: none
+
+  custom_fields:
+    menu:
+      card:
+        type: custom:button-card
+        template: hemma_menu_icon
+
+    navigation:
+      card: !include /config/dashboards/templates/includes/hemma_navigation.yaml
+
+    preload: |
+      [[[ 
+        const base = variables.image || 'default';
+        const night = variables.image_night || `${base}-night`;
+        const dayUrl = `/local/hemma/rooms/${base}.jpg`;
+        const nightUrl = `/local/hemma/rooms/${night}.jpg`;
+        const mobile = [
+          '/local/hemma/mobile/mobile-morning.jpg',
+          '/local/hemma/mobile/mobile-morning-dark.jpg',
+          '/local/hemma/mobile/mobile-day.jpg',
+          '/local/hemma/mobile/mobile-day-dark.jpg',
+          '/local/hemma/mobile/mobile-night.jpg',
+          '/local/hemma/mobile/mobile-night-dark.jpg'
+        ];
+
+        return `
+          <img src="${dayUrl}" alt="" />
+          <img src="${nightUrl}" alt="" />
+          ${mobile.map(src => `<img src="${src}" alt="" />`).join('')}
+        `;
+      ]]]
+
+    temperature:
+      card:
+        type: custom:button-card
+        template: hemma_weather
+        entity: '[[[ return variables.weather_entity ]]]'
+        variables:
+          hero_mode: true
+          weather_temp_sensor: '[[[ return variables.weather_temp_sensor ]]]'
+    weather:
+      card:
+        type: custom:button-card
+        template: hemma_weather
+        entity: '[[[ return variables.weather_entity ]]]'
+        variables:
+          weather_temp_sensor: '[[[ return variables.weather_temp_sensor ]]]'
+
+    time:
+      card:
+        type: custom:button-card
+        template: hemma_time
+
+    badges:
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+
+        layout:
+          grid-auto-flow: column
+          grid-auto-columns: max-content
+          grid-template-columns: none
+          justify-content: start
+          justify-items: start
+          align-items: center
+          grid-column-gap: var(--badge-gap-current, var(--badge-gap, 10px))
+
+        card_mod:
+          style: |
+            ha-card {
+              overflow: visible !important;
+            }
+
+        cards:
+          - type: custom:button-card
+            template: hemma_badge_climate_group
+            variables:
+              enabled: '[[[ return variables.show_climate && !variables.show_climate_inline ]]]'
+              temp_sensor: '[[[ return variables.temp_sensor_1 ]]]'
+              temp_sensor_2: '[[[ return variables.temp_sensor_2 ]]]'
+              temp_sensor_3: '[[[ return variables.temp_sensor_3 ]]]'
+              temp_sensor_4: '[[[ return variables.temp_sensor_4 ]]]'
+              temp_sensor_5: '[[[ return variables.temp_sensor_5 ]]]'
+              humidity_sensor: '[[[ return variables.humidity_sensor ]]]'
+              quality_sensor: '[[[ return variables.quality_sensor ]]]'
+              climate_entity: '[[[ return variables.climate_entity_1 ]]]'
+              climate_entity_2: '[[[ return variables.climate_entity_2 ]]]'
+              climate_entity_3: '[[[ return variables.climate_entity_3 ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_temp
+            entity: '[[[ return variables.temp_sensor_1 ]]]'
+            variables:
+              enabled: '[[[ return !!(variables.show_climate && variables.show_climate_inline && variables.temp_sensor_1) ]]]'
+              temp_unit: '[[[ return variables.temp_unit ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_humidity
+            entity: '[[[ return variables.humidity_sensor ]]]'
+            variables:
+              enabled: '[[[ return !!(variables.show_climate && variables.show_climate_inline && variables.humidity_sensor) ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_air_quality
+            entity: '[[[ return variables.quality_sensor ]]]'
+            variables:
+              enabled: '[[[ return !!(variables.show_climate && variables.show_climate_inline && variables.quality_sensor) ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_light_group
+            variables:
+              enabled: '[[[ return variables.show_lights ]]]'
+              light_group_entity: '[[[ return variables.show_lights ? variables.light_group_entity : null ]]]'
+              entity_1: '[[[ return variables.show_lights ? variables.light_entity_1 : null ]]]'
+              entity_2: '[[[ return variables.show_lights ? variables.light_entity_2 : null ]]]'
+              entity_3: '[[[ return variables.show_lights ? variables.light_entity_3 : null ]]]'
+              entity_4: '[[[ return variables.show_lights ? variables.light_entity_4 : null ]]]'
+              entity_5: '[[[ return variables.show_lights ? variables.light_entity_5 : null ]]]'
+              entity_6: '[[[ return variables.show_lights ? variables.light_entity_6 : null ]]]'
+              entity_7: '[[[ return variables.show_lights ? variables.light_entity_7 : null ]]]'
+              entity_8: '[[[ return variables.show_lights ? variables.light_entity_8 : null ]]]'
+              entity_9: '[[[ return variables.show_lights ? variables.light_entity_9 : null ]]]'
+              entity_10: '[[[ return variables.show_lights ? variables.light_entity_10 : null ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_presence_group
+            variables:
+              enabled: '[[[ return variables.show_presence && !!variables.presence_entity_2 ]]]'
+              entity_1: '[[[ return variables.presence_entity_1 ]]]'
+              entity_2: '[[[ return variables.presence_entity_2 ]]]'
+              entity_3: '[[[ return variables.presence_entity_3 ]]]'
+              entity_4: '[[[ return variables.presence_entity_4 ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_presence
+            entity: '[[[ return variables.presence_entity_1 ]]]'
+            variables:
+              enabled: '[[[ return !!(variables.show_presence && variables.presence_entity_1 && !variables.presence_entity_2) ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_media_group
+            variables:
+              enabled: '[[[ return variables.show_media ]]]'
+              pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+              entity_1: '[[[ return variables.show_media_player_1 ? variables.media_player_1 : null ]]]'
+              entity_2: '[[[ return variables.show_media_player_2 ? variables.media_player_2 : null ]]]'
+              entity_3: '[[[ return variables.show_media_player_3 ? variables.media_player_3 : null ]]]'
+              entity_4: '[[[ return variables.show_media_player_4 ? variables.media_player_4 : null ]]]'
+              entity_8: '[[[ return variables.show_media_player_5 ? variables.media_player_5 : null ]]]'
+              entity_9: '[[[ return variables.show_media_player_6 ? variables.media_player_6 : null ]]]'
+              entity_10: '[[[ return variables.show_media_player_7 ? variables.media_player_7 : null ]]]'
+              entity_11: '[[[ return variables.show_media_player_8 ? variables.media_player_8 : null ]]]'
+              entity_12: '[[[ return variables.show_media_player_9 ? variables.media_player_9 : null ]]]'
+              entity_13: '[[[ return variables.show_media_player_10 ? variables.media_player_10 : null ]]]'
+
+    badges_climate:
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+
+        layout:
+          grid-auto-flow: column
+          grid-auto-columns: max-content
+          grid-template-columns: none
+          justify-content: start
+          justify-items: start
+          align-items: center
+          grid-column-gap: var(--badge-gap-current, var(--badge-gap, 10px))
+
+        cards:
+          - type: custom:button-card
+            template: hemma_badge_temp
+            entity: '[[[ return variables.temp_sensor_1 ]]]'
+            variables:
+              enabled: '[[[ return variables.show_climate && !!variables.temp_sensor_1 ]]]'
+              temp_unit: '[[[ return variables.temp_unit ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_humidity
+            entity: '[[[ return variables.humidity_sensor ]]]'
+            variables:
+              enabled: '[[[ return variables.show_climate && !!variables.humidity_sensor ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_air_quality
+            entity: '[[[ return variables.quality_sensor ]]]'
+            variables:
+              enabled: '[[[ return variables.show_climate && !!variables.quality_sensor ]]]'
+
+    badges_presence:
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+
+        layout:
+          grid-auto-flow: column
+          grid-auto-columns: max-content
+          grid-template-columns: none
+          justify-content: start
+          justify-items: start
+          align-items: center
+          grid-column-gap: var(--badge-gap-current, var(--badge-gap, 10px))
+
+        cards:
+          - type: custom:button-card
+            template: hemma_badge_presence
+            entity: '[[[ return variables.presence_entity_1 ]]]'
+            variables:
+              enabled: '[[[ return variables.show_presence && !!variables.presence_entity_1 ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_presence
+            entity: '[[[ return variables.presence_entity_2 ]]]'
+            variables:
+              enabled: '[[[ return variables.show_presence && !!variables.presence_entity_2 ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_presence
+            entity: '[[[ return variables.presence_entity_3 ]]]'
+            variables:
+              enabled: '[[[ return variables.show_presence && !!variables.presence_entity_3 ]]]'
+
+          - type: custom:button-card
+            template: hemma_badge_presence
+            entity: '[[[ return variables.presence_entity_4 ]]]'
+            variables:
+              enabled: '[[[ return variables.show_presence && !!variables.presence_entity_4 ]]]'
+
+    badges_media:
+      card:
+        type: custom:button-card
+        show_icon: false
+        show_name: false
+        show_state: false
+        show_label: false
+        show_entity_picture: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+
+        extra_styles: |
+          ha-card {
+            will-change: auto !important;
+            isolation: auto !important;
+            contain: none !important;
+          }
+          #container {
+            will-change: auto !important;
+            isolation: auto !important;
+          }
+          #mp1, #mp2, #mp3, #mp4,
+          #plex, #plex_2,
+          #activity1, #activity2 {
+            overflow: hidden;
+          }
+
+        styles:
+          card:
+            - background: transparent !important
+            - box-shadow: none !important
+            - backdrop-filter: none !important
+            - -webkit-backdrop-filter: none !important
+            - padding: 0 !important
+            - margin-top: 3px !important
+            - border-radius: 0 !important
+            - border: none !important
+            - overflow: visible !important
+            - width: max-content !important
+          grid:
+            - display: flex !important
+            - flex-direction: row !important
+            - flex-wrap: nowrap !important
+            - gap: 0 !important
+            - align-items: flex-start !important
+            - justify-content: flex-start !important
+            - overflow: visible !important
+            - padding: 0 !important
+            - margin: 0 !important
+            - width: max-content !important
+          custom_fields:
+            mp1:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_1 || !variables.media_player_1) return '0px';
+                    const s = states[variables.media_player_1]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_1 || !variables.media_player_1) return '0px';
+                    const s = states[variables.media_player_1]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_1 || !variables.media_player_1) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_1]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp2:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_2 || !variables.media_player_2) return '0px';
+                    const s = states[variables.media_player_2]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_2 || !variables.media_player_2) return '0px';
+                    const s = states[variables.media_player_2]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_2 || !variables.media_player_2) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_2]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp3:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_3 || !variables.media_player_3) return '0px';
+                    const s = states[variables.media_player_3]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_3 || !variables.media_player_3) return '0px';
+                    const s = states[variables.media_player_3]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_3 || !variables.media_player_3) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_3]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp4:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_4 || !variables.media_player_4) return '0px';
+                    const s = states[variables.media_player_4]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_4 || !variables.media_player_4) return '0px';
+                    const s = states[variables.media_player_4]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_4 || !variables.media_player_4) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_4]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp5:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_5 || !variables.media_player_5) return '0px';
+                    const s = states[variables.media_player_5]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_5 || !variables.media_player_5) return '0px';
+                    const s = states[variables.media_player_5]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_5 || !variables.media_player_5) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_5]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp6:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_6 || !variables.media_player_6) return '0px';
+                    const s = states[variables.media_player_6]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_6 || !variables.media_player_6) return '0px';
+                    const s = states[variables.media_player_6]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_6 || !variables.media_player_6) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_6]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp7:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_7 || !variables.media_player_7) return '0px';
+                    const s = states[variables.media_player_7]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_7 || !variables.media_player_7) return '0px';
+                    const s = states[variables.media_player_7]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_7 || !variables.media_player_7) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_7]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp8:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_8 || !variables.media_player_8) return '0px';
+                    const s = states[variables.media_player_8]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_8 || !variables.media_player_8) return '0px';
+                    const s = states[variables.media_player_8]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_8 || !variables.media_player_8) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_8]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp9:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_9 || !variables.media_player_9) return '0px';
+                    const s = states[variables.media_player_9]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7,variables.show_media_player_8&&variables.media_player_8].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_9 || !variables.media_player_9) return '0px';
+                    const s = states[variables.media_player_9]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7,variables.show_media_player_8&&variables.media_player_8].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_9 || !variables.media_player_9) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_9]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+            mp10:
+              - max-width: >
+                  [[[
+                    if (!variables.show_media_player_10 || !variables.media_player_10) return '0px';
+                    const s = states[variables.media_player_10]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7,variables.show_media_player_8&&variables.media_player_8,variables.show_media_player_9&&variables.media_player_9].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return '450px';
+                  ]]]
+              - margin-right: >
+                  [[[
+                    if (!variables.show_media_player_10 || !variables.media_player_10) return '0px';
+                    const s = states[variables.media_player_10]; if (!s) return '0px';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return '0px';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return '0px';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return '0px'; }
+                    const _ck=e=>{const a2=states[e]?.attributes||{};return`${String(a2.media_title||'').trim()}|${String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim()}`};
+                    const _ia=e=>{if(!e)return false;const s2=states[e];if(!s2)return false;const st2=String(s2.state||'');if(['unavailable','unknown','off','standby'].includes(st2))return false;const a2=s2.attributes||{};if(!String(a2.media_title||'').trim()&&!String(a2.media_artist||a2.artist||a2.media_album_artist||'').trim())return false;if(['playing','buffering','on','idle'].includes(st2))return true;if(st2==='paused'){const t=Number(variables.pause_timeout_minutes??5);return t<=0||((new Date()-new Date(s2.last_changed))/60000)<=t;}return false;};
+                    const _myKey=`${String(a.media_title||'').trim()}|${String(a.media_artist||a.artist||a.media_album_artist||'').trim()}`;
+                    if([variables.show_media_player_1&&variables.media_player_1,variables.show_media_player_2&&variables.media_player_2,variables.show_media_player_3&&variables.media_player_3,variables.show_media_player_4&&variables.media_player_4,variables.show_media_player_5&&variables.media_player_5,variables.show_media_player_6&&variables.media_player_6,variables.show_media_player_7&&variables.media_player_7,variables.show_media_player_8&&variables.media_player_8,variables.show_media_player_9&&variables.media_player_9].filter(Boolean).filter(_ia).some(e=>_ck(e)===_myKey))return'0px';
+                    return 'var(--badge-gap-current, var(--badge-gap, 10px))';
+                  ]]]
+              - transition: >
+                  [[[
+                    if (!variables.show_media_player_10 || !variables.media_player_10) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const s = states[variables.media_player_10]; if (!s) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const st = String(s.state || '');
+                    if (['unavailable','unknown','off','standby'].includes(st)) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    const a = s.attributes || {};
+                    if (!String(a.media_title||'').trim() && !String(a.media_artist||a.artist||a.media_album_artist||'').trim()) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s';
+                    if (st === 'paused') { const t = Number(variables.pause_timeout_minutes ?? 5); if (t > 0 && (new Date() - new Date(s.last_changed)) / 60000 > t) return 'max-width 0.001s ease 0.3s, margin-right 0.001s ease 0.3s'; }
+                    return 'max-width 0.001s ease, margin-right 0.001s ease';
+                  ]]]
+
+        custom_fields:
+          mp1:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_1 ]]]'
+                entity: '[[[ return variables.media_player_1 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp2:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_2 ]]]'
+                entity: '[[[ return variables.media_player_2 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp3:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_3 ]]]'
+                entity: '[[[ return variables.media_player_3 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp4:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_4 ]]]'
+                entity: '[[[ return variables.media_player_4 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp5:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_5 ]]]'
+                entity: '[[[ return variables.media_player_5 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp6:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_6 ]]]'
+                entity: '[[[ return variables.media_player_6 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp7:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_7 ]]]'
+                entity: '[[[ return variables.media_player_7 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp8:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_8 ]]]'
+                entity: '[[[ return variables.media_player_8 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp9:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_9 ]]]'
+                entity: '[[[ return variables.media_player_9 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+          mp10:
+            card:
+              type: custom:button-card
+              template: hemma_badge_media_player
+              variables:
+                enabled: '[[[ return variables.show_media_player_10 ]]]'
+                entity: '[[[ return variables.media_player_10 ]]]'
+                pause_timeout_minutes: '[[[ return variables.pause_timeout_minutes ]]]'
+
+    badges_lights:
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+
+        layout:
+          grid-auto-flow: column
+          grid-auto-columns: max-content
+          grid-template-columns: none
+          justify-content: start
+          justify-items: start
+          align-items: center
+          grid-column-gap: var(--badge-gap-current, var(--badge-gap, 10px))
+
+        cards:
+          # When light_entity_2 is not set and light_entity_1 is an HA light group,
+          # the sub-badges automatically expand to show each member of the group.
+          # To use individual entities directly, set light_entity_1, light_entity_2, etc.
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[0] || null) : (g || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[0];
+                  return variables.show_lights && !!g;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[1] || null) : (variables.light_entity_2 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[1];
+                  return variables.show_lights && !!variables.light_entity_2;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[2] || null) : (variables.light_entity_3 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[2];
+                  return variables.show_lights && !!variables.light_entity_3;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[3] || null) : (variables.light_entity_4 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[3];
+                  return variables.show_lights && !!variables.light_entity_4;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[4] || null) : (variables.light_entity_5 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[4];
+                  return variables.show_lights && !!variables.light_entity_5;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[5] || null) : (variables.light_entity_6 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[5];
+                  return variables.show_lights && !!variables.light_entity_6;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[6] || null) : (variables.light_entity_7 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[6];
+                  return variables.show_lights && !!variables.light_entity_7;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[8] || null) : (variables.light_entity_8 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[8];
+                  return variables.show_lights && !!variables.light_entity_8;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[9] || null) : (variables.light_entity_9 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[9];
+                  return variables.show_lights && !!variables.light_entity_9;
+                ]]]
+
+          - type: custom:button-card
+            template: hemma_badge_light
+            entity: >
+              [[[
+                const g = variables.light_entity_1;
+                const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                return expand ? (m[10] || null) : (variables.light_entity_10 || null);
+              ]]]
+            variables:
+              enabled: >
+                [[[
+                  const g = variables.light_entity_1;
+                  const m = g ? hass.states[g]?.attributes?.entity_id : null;
+                  const expand = Array.isArray(m) && m.length > 0 && !variables.light_entity_2;
+                  if (expand) return variables.show_lights && !!m[10];
+                  return variables.show_lights && !!variables.light_entity_10;
+                ]]]
+
+  extra_styles: |
+    #mp1, #mp2, #mp3, #mp4,
+    #plex, #plex_2,
+    #activity1, #activity2 {
+      overflow: hidden;
+    }
+
+    #badges,
+    #badges_climate,
+    #badges_presence,
+    #badges_media,
+    #badges_lights {
+      overflow-x: hidden !important;
+      overflow-y: hidden !important;
+      overscroll-behavior-x: contain !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    #badges::-webkit-scrollbar,
+    #badges_climate::-webkit-scrollbar,
+    #badges_presence::-webkit-scrollbar,
+    #badges_media::-webkit-scrollbar,
+    #badges_lights::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 767px) and (orientation: portrait) {
+      #badges,
+      #badges_climate,
+      #badges_presence,
+      #badges_media,
+      #badges_lights {
+        overflow-x: auto !important;
+        width: calc(100% + 2 * var(--hero-gutter) - var(--hemma-header-badge-nudge, 0px)) !important;
+        max-width: none !important;
+        margin-left: calc(-1 * var(--hero-gutter) + var(--hemma-header-badge-nudge, 0px)) !important;
+        padding-left: var(--hero-gutter) !important;
+        padding-right: var(--hero-gutter) !important;
+        box-sizing: border-box !important;
+      }
+
+      #badges_media {
+        padding-left: calc(var(--hero-gutter) + var(--hemma-header-media-badge-nudge-current, 0px)) !important;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+      #badges,
+      #badges_climate,
+      #badges_presence,
+      #badges_media,
+      #badges_lights {
+        max-width: calc(100vw - (2 * var(--hemma-entity-col-width-landscape, 200px)) - 8px - var(--hemma-tiles-right-pad-landscape, 0px) - var(--hero-gutter, 18px) - var(--hemma-landscape-badge-stop-pad, 60px)) !important;
+        overflow-x: auto !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+    #time {
+      display: none;
+    }
+
+    @media (min-width: 769px) and (hover: hover) and (pointer: fine) {
+      #time {
+        display: var(--hemma-time-nav-open, block);
+        top: calc(env(safe-area-inset-top, 0px) + var(--hemma-nav-top-current, 60px) - 8px);
+        right: clamp(8px, 4vw, 48px);
+      }
+    }
+
+    @media (min-width: 600px) and (max-width: 767px) and (min-height: 501px) {
+      #time {
+        display: var(--hemma-time-nav-open, block);
+        top: calc(env(safe-area-inset-top, 0px) + var(--hemma-nav-top-current, 46px) - var(--hemma-time-nudge-small-tablet, 43px));
+        right: calc(env(safe-area-inset-right, 0px) + 8px);
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1366px) and (min-height: 501px) and (pointer: coarse),
+           (min-width: 768px) and (max-width: 1366px) and (min-height: 501px) and (hover: none) {
+      #time {
+        display: var(--hemma-time-nav-open, block);
+        top: calc(env(safe-area-inset-top, 0px) + var(--hemma-nav-top-current, 46px) - var(--hemma-time-nudge-tablet, 36px));
+        right: max(calc(var(--hero-gutter) - 20px), 4px);
+      }
+    }

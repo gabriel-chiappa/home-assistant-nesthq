@@ -1,0 +1,69 @@
+hemma_humidifier:
+  template: [hemma_entity]
+
+  # show_icon: true is required for icon_tap_action to work
+  show_icon: true
+  show_name: true
+  show_state: true
+  name: Humidifier
+
+  tap_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  hold_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  icon_tap_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  icon_hold_action:
+    action: more-info
+    entity: '[[[ return entity.entity_id ]]]'
+
+  entity_picture: |
+    [[[
+      const s = (entity?.state || '').toLowerCase();
+      return s === 'on'
+        ? '/local/hemma/icons/humidifier-on.svg'
+        : '/local/hemma/icons/humidifier.svg';
+    ]]]
+
+  styles:
+    entity_picture:
+      - width: 100%
+      - height: 100%
+      - object-fit: contain
+      - opacity: 0.8
+      - transition: opacity 0.2s ease, filter 0.2s ease, transform 0.15s ease
+      - cursor: pointer
+
+    img_cell:
+      - background: transparent !important
+      - box-shadow: none !important
+      - transition: filter 0.2s ease
+      - cursor: pointer
+
+  extra_styles: |
+    @media (hover: hover) {
+      #img-cell:hover {
+        transform: scale(1.05);
+        transition: transform 0.15s ease;
+      }
+      #img-cell:hover img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }
+
+    @media (hover: none) {
+      #img-cell:active {
+        transform: scale(1.05);
+      }
+      #img-cell:active img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }

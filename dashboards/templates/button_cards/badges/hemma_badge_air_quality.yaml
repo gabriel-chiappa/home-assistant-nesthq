@@ -1,0 +1,90 @@
+# Air Quality Badge
+# Shows air quality sensor with color-coded status
+hemma_badge_air_quality:
+  template: [hemma_badge_base]
+
+  variables:
+    enabled: true
+
+  tap_action: { action: more-info }
+  icon: mdi:air-filter
+
+  extra_styles: >
+    [[[
+      // Robust enabled check (see hemma_badge_base.yaml for pattern docs)
+      const ev = variables?.enabled;
+      const enabled = (ev === undefined || ev === null) ? true :
+        (typeof ev === 'boolean') ? ev :
+        (typeof ev === 'number') ? ev !== 0 :
+        !['false','0','no','off','disabled'].includes(String(ev).trim().toLowerCase());
+
+      const hasEnt  = !!entity?.entity_id;
+      const stRaw   = String(entity?.state ?? '').trim();
+      const st      = stRaw.toLowerCase();
+      const hide    = !enabled || !hasEnt || !stRaw || ['unknown','unavailable','none'].includes(st);
+
+      const svgUrl = ['bad', 'very bad'].includes(st)
+        ? '/local/hemma/icons/aqi-high.svg'
+        : '/local/hemma/icons/aqi-medium.svg';
+
+      return `
+        :host{display:${hide ? 'none' : 'inline-block'} !important;}
+        #img-cell, .img-cell { position: relative; }
+        #img-cell #icon, .img-cell #icon { color: transparent !important; opacity: 0 !important; }
+        #img-cell::before, .img-cell::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-color: var(--hemma-icon-color, var(--primary-text-color));
+          -webkit-mask: url('${svgUrl}') no-repeat center / 85% 85%;
+          mask: url('${svgUrl}') no-repeat center / 85% 85%;
+          transform: translateZ(0);
+        }
+      `;
+    ]]]
+
+  styles:
+    card:
+      - display: >
+          [[[
+            // Robust enabled check (see hemma_badge_base.yaml for pattern docs)
+            const ev = variables?.enabled;
+            const enabled = (ev === undefined || ev === null) ? true :
+              (typeof ev === 'boolean') ? ev :
+              (typeof ev === 'number') ? ev !== 0 :
+              !['false','0','no','off','disabled'].includes(String(ev).trim().toLowerCase());
+
+            const hasEnt  = !!entity?.entity_id;
+            const stRaw   = String(entity?.state ?? '').trim();
+            const st      = stRaw.toLowerCase();
+            const hide    = !enabled || !hasEnt || !stRaw || ['unknown','unavailable','none'].includes(st);
+
+            return hide ? 'none' : 'inline-grid';
+          ]]]
+      - --hemma-icon-color: >
+          [[[
+            const s = String(entity?.state || 'unknown').toLowerCase();
+            if (s === 'excellent') return 'var(--hemma-badge-temp-comfortable-color)';
+            if (s === 'good')      return 'var(--hemma-badge-air-quality-good-color)';
+            if (s === 'moderate')  return 'var(--hemma-badge-air-quality-moderate-color)';
+            if (s === 'bad')       return 'var(--hemma-badge-temp-hot-color)';
+            if (s === 'very bad')  return 'var(--hemma-badge-temp-very-hot-color)';
+            return 'var(--disabled-text-color)';
+          ]]]
+    icon:
+      - color: transparent
+
+  name: >
+    [[[
+      const raw = String(entity?.state ?? 'Unknown');
+      const nice = raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : 'Unknown';
+
+      const esc = (t) => String(t || '').replaceAll('"','&quot;');
+
+      return `
+        <div class="badge-wrap">
+          <div class="badge-title">Air Quality</div>
+          <div class="badge-sub">${esc(nice)}</div>
+        </div>
+      `;
+    ]]]

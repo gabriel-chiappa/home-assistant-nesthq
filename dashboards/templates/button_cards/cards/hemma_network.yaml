@@ -1,0 +1,128 @@
+# Network Speed Card
+# Shows WAN activity as a tier label based on download/upload speeds.
+# The card entity should be the download-speed sensor; set upload_sensor variable
+# to the matching upload-speed sensor.
+#
+# Variables:
+#   upload_sensor    - entity ID for the upload speed sensor
+#   icon             - icon filename (default: wifi)
+#   idle_threshold   - max Mbps (both) to show "Idle" (default: 1)
+#   light_threshold  - max Mbps to show "Light ..." (default: 10)
+#   heavy_threshold  - min Mbps to show "Heavy ..." (default: 50)
+#                      between light and heavy = "Active ..."
+#
+# Card is visually active (glowing) when max speed >= light_threshold.
+
+hemma_network:
+  template:
+    - hemma_entity
+
+  variables:
+    upload_sensor: null
+    icon: wifi
+    idle_threshold: 1
+    light_threshold: 10
+    heavy_threshold: 50
+
+  triggers_update:
+    - '[[[ return variables.upload_sensor || "" ]]]'
+
+  tap_action:
+    action: more-info
+    entity: >
+      [[[
+        const dl = parseFloat(entity?.state);
+        const ul = parseFloat(states[variables.upload_sensor]?.state);
+        return (Number.isFinite(ul) && ul > dl && variables.upload_sensor)
+          ? variables.upload_sensor
+          : entity.entity_id;
+      ]]]
+
+  icon_tap_action:
+    action: more-info
+    entity: >
+      [[[
+        const dl = parseFloat(entity?.state);
+        const ul = parseFloat(states[variables.upload_sensor]?.state);
+        return (Number.isFinite(ul) && ul > dl && variables.upload_sensor)
+          ? variables.upload_sensor
+          : entity.entity_id;
+      ]]]
+
+  hold_action:
+    action: more-info
+    entity: >
+      [[[
+        const dl = parseFloat(entity?.state);
+        const ul = parseFloat(states[variables.upload_sensor]?.state);
+        return (Number.isFinite(ul) && ul > dl && variables.upload_sensor)
+          ? variables.upload_sensor
+          : entity.entity_id;
+      ]]]
+
+  # Idle · Light Downloads/Uploads · Active Downloads/Uploads · Heavy Downloads/Uploads
+  state_display: >
+    [[[
+      const dl   = parseFloat(entity?.state);
+      const ul   = parseFloat(states[variables.upload_sensor]?.state);
+      const dlOk = Number.isFinite(dl);
+      const ulOk = Number.isFinite(ul);
+      const max  = Math.max(dlOk ? dl : 0, ulOk ? ul : 0);
+
+      const idle  = Number(variables.idle_threshold  ?? 1);
+      const light = Number(variables.light_threshold ?? 10);
+      const heavy = Number(variables.heavy_threshold ?? 50);
+
+      if (max < idle) return 'Idle';
+
+      const tier = max < light ? 'Light' : max < heavy ? 'Active' : 'Heavy';
+      const dir  = (!dlOk || (ulOk && ul > dl)) ? 'Upload' : 'Download';
+      return `${tier} ${dir}`;
+    ]]]
+
+  extra_styles: |
+    @media (hover: hover) {
+      #img-cell:hover {
+        transform: scale(1.05);
+        transition: transform 0.15s ease;
+      }
+      #img-cell:hover img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }
+    @media (hover: none) {
+      #img-cell:active {
+        transform: scale(1.05);
+      }
+      #img-cell:active img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }
+
+  # Glowing active style when max speed >= light_threshold
+  state:
+    - operator: template
+      value: |
+        [[[
+          const dl    = parseFloat(entity?.state);
+          const ul    = parseFloat(states[variables.upload_sensor]?.state);
+          const max   = Math.max(Number.isFinite(dl) ? dl : 0, Number.isFinite(ul) ? ul : 0);
+          const light = Number(variables.light_threshold ?? 10);
+          return max >= light;
+        ]]]
+      styles:
+        card:
+          - background: var(--hemma-entity-background-active)
+          - box-shadow: var(--button-card-box-shadow-active, var(--button-card-box-shadow)) !important
+        name:
+          - color: var(--hemma-entity-name-active, var(--primary-text-color))
+        state:
+          - color: var(--hemma-entity-state-active-color)
+        img_cell:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important
+        entity_picture:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important

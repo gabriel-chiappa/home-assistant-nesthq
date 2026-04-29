@@ -1,0 +1,36 @@
+# Sensitive files - never commit these
+secrets.yaml
+.storage/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Logs and faults
+*.log
+*.log.fault
+*.log.1
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Python dependencies (managed separately)
+deps/
+
+# TTS generated audio
+tts/
+
+# External project - re-clone from https://github.com/willsanderson/Hemma.git
+hemma-src/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Backup files
+*.bak

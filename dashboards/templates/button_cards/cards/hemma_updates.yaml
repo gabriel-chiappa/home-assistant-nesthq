@@ -1,0 +1,107 @@
+hemma_updates:
+  template:
+    - hemma_entity
+
+  variables:
+    icon: updates
+
+  tap_action:
+    haptic: light
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.popup
+      data:
+        title: Available Updates
+        adaptive: true
+        adaptive_allow_mode_change: true
+        adaptive_force_bottom_sheet: false
+        size: >
+          [[[
+            return window.innerWidth >= 1250 ? 'auto' : 'fullscreen';
+          ]]]
+        content:
+          type: custom:auto-entities
+          show_empty: false
+          card:
+            type: entities
+            card_mod:
+              style: |
+                ha-card {
+                  background: transparent !important;
+                  box-shadow: none !important;
+                  border: none !important;
+                  padding-top: 0 !important;
+                  padding-bottom: 0 !important;
+                  backdrop-filter: none !important;
+                  --ha-card-box-shadow: none !important;
+                }
+
+                ha-card:hover,
+                ha-card:focus,
+                ha-card:active {
+                  box-shadow: none !important;
+                  --ha-card-box-shadow: none !important;
+                }
+                
+          filter:
+            include:
+              - domain: update
+                state: "on"
+
+  icon_tap_action:
+    action: more-info
+
+  hold_action:
+    action: more-info
+
+  state_display: |
+    [[[
+      const n = Number(entity.state);
+      if (!Number.isFinite(n) || n <= 0) return 'Up to date';
+      if (n === 1) return '1 Update';
+      return `${n} Updates`;
+    ]]]
+
+  # Active
+  state:
+    - operator: template
+      value: |
+        [[[
+          const n = Number(entity.state);
+          return Number.isFinite(n) && n > 0;
+        ]]]
+      styles:
+        card:
+          - background: var(--hemma-entity-background-active)
+          - box-shadow: var(--button-card-box-shadow-active, var(--button-card-box-shadow)) !important
+        name:
+          - color: var(--hemma-entity-name-active, var(--primary-text-color))
+        state:
+          - color: var(--hemma-entity-state-active-color)
+        img_cell:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important
+        entity_picture:
+          - opacity: var(--hemma-entity-picture-active-opacity, 1) !important
+          - filter: var(--hemma-entity-picture-active-filter, none) !important
+
+  extra_styles: |
+    @media (hover: hover) {
+      #img-cell:hover {
+        transform: scale(1.05);
+        transition: transform 0.15s ease;
+      }
+      #img-cell:hover img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }
+    @media (hover: none) {
+      #img-cell:active {
+        transform: scale(1.05);
+      }
+      #img-cell:active img {
+        opacity: 1 !important;
+        filter: brightness(1.2) !important;
+      }
+    }
