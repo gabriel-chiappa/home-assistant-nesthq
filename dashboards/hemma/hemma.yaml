@@ -78,6 +78,25 @@ views:
             variables:
               upload_sensor: sensor.speedtest_upload
 
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.waze_commute_to_manhattan
+            name: Commute
+            variables:
+              icon: clock
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.allergy_index_today
+            name: Allergy
+            variables:
+              icon: aqi-medium
+
+          - type: custom:button-card
+            template: hemma_energy
+            entity: sensor.electricity_maps_co2_intensity
+            name: CO2 Grid
+
 
   # ------------------------------------------------------
   # OFFICE
@@ -141,10 +160,12 @@ views:
           image: kitchen
           image_position: center center
 
-          show_climate: false
+          show_climate: true
+          show_climate_inline: true
+          temp_sensor_1: sensor.echo_dot_temperature
+          temp_unit: 'F'
 
           show_weather: false
-          temp_unit: 'F'
 
           show_lights: false
 
@@ -198,10 +219,14 @@ views:
 
           show_lights: true
           light_entity_1: light.bedroom_lights
+          light_entity_2: light.bedroom_floor_lamp
+          light_entity_3: light.bedroom_vanity_light
 
           show_media: true
           show_media_player_1: true
           media_player_1: media_player.samsung_bedroom_tv
+          show_media_player_2: true
+          media_player_2: media_player.echo_show
 
       # MOBILE NAVBAR
       - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
@@ -219,3 +244,191 @@ views:
             variables:
               icon: tv
               show_toggle: true
+
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bedroom_floor_lamp
+            name: Floor Lamp
+            variables:
+              icon: lamp
+
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bedroom_vanity_light
+            name: Vanity
+            variables:
+              icon: pendant-light
+
+          - type: custom:button-card
+            template: hemma_media
+            entity: media_player.echo_show
+            name: Echo Show
+            variables:
+              icon: speaker
+
+  # ------------------------------------------------------
+  # BATHROOM
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: bathroom
+    path: bathroom
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Bathroom
+        variables:
+          image: bedroom
+          image_position: center top
+
+          show_climate: false
+          show_weather: false
+          temp_unit: 'F'
+
+          show_lights: true
+          light_entity_1: light.bathroom_lights
+          light_entity_2: light.bathroom_mirror_left
+          light_entity_3: light.bathroom_mirror_center
+          light_entity_4: light.bathroom_mirror_right
+
+          show_media: false
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bathroom_lights
+            name: Bathroom
+            variables:
+              icon: light
+
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bathroom_mirror_left
+            name: Mirror Left
+            variables:
+              icon: pendant-light
+
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bathroom_mirror_center
+            name: Mirror Center
+            variables:
+              icon: pendant-light
+
+          - type: custom:button-card
+            template: hemma_light
+            entity: light.bathroom_mirror_right
+            name: Mirror Right
+            variables:
+              icon: pendant-light
+
+  # ------------------------------------------------------
+  # OUTSIDE & HEALTH
+  # ------------------------------------------------------
+  - type: custom:grid-layout
+    title: outside
+    path: outside
+    layout: !include /config/dashboards/templates/includes/hemma_screen_layout.yaml
+    cards:
+      # ROOM HERO CARD
+      - type: custom:button-card
+        template: hemma_room
+        name: Outside
+        variables:
+          image: home
+          image_position: center center
+
+          show_climate: true
+          show_climate_inline: true
+          temp_sensor_1: sensor.nws_40_7375014_73_9020664_klga_temperature
+          humidity_sensor: sensor.nws_40_7375014_73_9020664_klga_relative_humidity
+
+          show_weather: true
+          weather_entity: weather.nws_40_7375014_73_9020664_klga
+          weather_temp_sensor: sensor.nws_40_7375014_73_9020664_klga_temperature
+          temp_unit: 'F'
+
+          show_presence: false
+          show_lights: false
+          show_media: false
+
+      # MOBILE NAVBAR
+      - !include /config/dashboards/templates/includes/hemma_navbar_mobile.yaml
+
+      # ENTITY CARDS
+      - type: custom:layout-card
+        class: hemma-entities
+        layout_type: custom:grid-layout
+        layout: !include /config/dashboards/templates/includes/hemma_entity_layout.yaml
+        cards:
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.nws_40_7375014_73_9020664_klga_wind_speed
+            name: Wind
+            variables:
+              icon: fan
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.nws_40_7375014_73_9020664_klga_relative_humidity
+            name: Humidity
+            variables:
+              icon: humidity
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.nws_40_7375014_73_9020664_klga_barometric_pressure
+            name: Pressure
+            variables:
+              icon: temp-medium
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.nws_40_7375014_73_9020664_klga_visibility
+            name: Visibility
+            variables:
+              icon: wifi
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.allergy_index_today
+            name: Allergy Today
+            variables:
+              icon: aqi-medium
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.allergy_index_tomorrow
+            name: Allergy Tomorrow
+            variables:
+              icon: aqi-low
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.asthma_index_today
+            name: Asthma
+            variables:
+              icon: aqi-high
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.cold_flu_index_today
+            name: Cold & Flu
+            variables:
+              icon: aqi-medium
+
+          - type: custom:button-card
+            template: hemma_entity
+            entity: sensor.waze_commute_to_manhattan
+            name: Commute to Manhattan
+            variables:
+              icon: clock
