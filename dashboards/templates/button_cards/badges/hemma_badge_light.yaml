@@ -13,12 +13,12 @@ hemma_badge_light:
   icon: mdi:lightbulb
 
   tap_action:
-    action: call-service
-    service: script.turn_on
-    service_data:
+    action: perform-action
+    perform_action: script.turn_on
+    action_data:
       entity_id: script.hemma_light_smart_toggle
       variables:
-        light_entity: '[[[ return entity.entity_id ]]]'
+        light_entity: '[[[ return entity?.entity_id ]]]'
 
   hold_action:
     action: |
@@ -29,7 +29,7 @@ hemma_badge_light:
         const isGroup = Array.isArray(members) && members.length > 0;
         return (isMobile || !hasBrowserMod || !isGroup) ? 'more-info' : 'fire-dom-event';
       ]]]
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
     browser_mod:
       service: browser_mod.popup
       data:
@@ -70,7 +70,7 @@ hemma_badge_light:
             - type: custom:more-info-card
               view_layout:
                 grid-area: main
-              entity: "[[[ return entity.entity_id ]]]"
+              entity: "[[[ return entity?.entity_id ]]]"
               card_mod:
                 style:
                   $: |

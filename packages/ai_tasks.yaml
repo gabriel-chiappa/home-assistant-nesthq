@@ -1,0 +1,458 @@
+# packages/ai_tasks.yaml
+# 10 AI-powered automations using local Ollama models + Claude Sonnet via LiteLLM
+#
+# MODEL GUIDE:
+#   llama3-lexi:latest          → fast, conversational  (welcome, motivation, tips)
+#   gemma4:e4b                  → fast, structured       (checklists, alerts)
+#   qwen3.5:latest              → analytical reasoning   (briefings, energy)
+#   huihui-qwen3-coder:latest   → code / Jinja2 gen
+#   claude-sonnet-4-6-1m        → complex multi-step analysis (weekly report)
+#
+# REQUIRES: rest_command.ollama_generate  (defined in eros_bridge.yaml)
+
+# ── Shared output entities ────────────────────────────────────────────────────
+input_text:
+  ai_morning_briefing_text:
+    name: "AI – Morning Briefing"
+    max: 255
+    initial: ""
+
+  ai_energy_digest_text:
+    name: "AI – Energy Digest"
+    max: 255
+    initial: ""
+
+  ai_weekly_report_text:
+    name: "AI – Weekly Report"
+    max: 255
+    initial: ""
+
+  ai_jinja_helper_request:
+    name: "AI – Jinja Helper Request"
+    max: 255
+    initial: ""
+
+  ai_jinja_helper_output:
+    name: "AI – Jinja Helper Output"
+    max: 255
+    initial: ""
+
+# ── Scripts (callable manually or from automations) ───────────────────────────
+script:
+
+  # 1. Morning Briefing — qwen3.5 (synthesis + reasoning)
+  ai_morning_briefing:
+    alias: "AI – Morning Briefing"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "qwen3.5:latest"
+          prompt: >-
+            You are a concise smart home assistant. Give Gabriel a 2-sentence morning briefing.
+            Current conditions: {{ states('sensor.nws_klga_temperature') }}°F,
+            humidity {{ states('sensor.nws_klga_humidity') }}%,
+            wind {{ states('sensor.nws_klga_wind_speed') }} mph,
+            visibility {{ states('sensor.nws_klga_visibility') }} mi.
+            Sentence 1: weather summary. Sentence 2: one practical tip for the day. No greetings, no fluff.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Morning briefing unavailable.') | truncate(250, true, '…', 0) | trim }}
+            {% else %}
+              Morning briefing unavailable.
+            {% endif %}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.ai_morning_briefing_text
+        data:
+          value: "{{ reply }}"
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Good morning ☀️"
+          message: "{{ reply }}"
+
+  # 2. Arrival Welcome — llama3-lexi (fast, casual)
+  ai_arrival_welcome:
+    alias: "AI – Arrival Welcome"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "llama3-lexi:latest"
+          prompt: >-
+            Write one casual welcome-home sentence for Gabriel.
+            It is {{ now().strftime('%I:%M %p') }} on {{ now().strftime('%A') }}.
+            Outside: {{ states('sensor.nws_klga_temperature') }}°F.
+            Natural and warm, no quotation marks, just the sentence.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Welcome home, Gabriel!') | truncate(200, true, '…', 0) | trim }}
+            {% else %}
+              Welcome home, Gabriel!
+            {% endif %}
+          alexa_target: >
+            {% set lc = expand(states.media_player)
+               | selectattr('attributes.last_called', 'eq', True)
+               | map(attribute='entity_id') | list | first | default('') %}
+            {{ lc if lc != '' else 'media_player.bedroom_echo_show_8' }}
+      - service: notify.alexa_media
+        data:
+          message: "{{ reply }}"
+          target: "{{ alexa_target }}"
+          data:
+            type: announce
+
+  # 3. Departure Checklist — gemma4:e4b (fast, structured)
+  ai_departure_checklist:
+    alias: "AI – Departure Checklist"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "gemma4:e4b"
+          prompt: >-
+            Gabriel just left home at {{ now().strftime('%I:%M %p') }}.
+            Outside: {{ states('sensor.nws_klga_temperature') }}°F.
+            Write a 3-item departure reminder as a single line, items separated by · (middle dot).
+            Examples: lock the door, close windows, set thermostat.
+            No intro, no outro, just the 3 items.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Lock up · close windows · safe travels!') | truncate(200, true, '…', 0) | trim }}
+            {% else %}
+              Lock up · close windows · safe travels!
+            {% endif %}
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Before you go 👋"
+          message: "{{ reply }}"
+
+  # 4. Bedtime Home Check — gemma4:e4b (fast, structured)
+  ai_bedtime_check:
+    alias: "AI – Bedtime Check"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "gemma4:e4b"
+          prompt: >-
+            It is {{ now().strftime('%I:%M %p') }}. Help Gabriel wind down.
+            Outside: {{ states('sensor.nws_klga_temperature') }}°F, humidity {{ states('sensor.nws_klga_humidity') }}%.
+            Write exactly 2 sentences: one reminder about locking up and turning off lights,
+            one brief note about overnight conditions. Calm tone.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Lock up and rest well.') | truncate(250, true, '…', 0) | trim }}
+            {% else %}
+              Lock up and rest well.
+            {% endif %}
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Bedtime 🌙"
+          message: "{{ reply }}"
+
+  # 5. Weather Activity Tip — llama3-lexi (casual, fast)
+  ai_weather_activity_tip:
+    alias: "AI – Weather Activity Tip"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "llama3-lexi:latest"
+          prompt: >-
+            Today: {{ states('sensor.nws_klga_temperature') }}°F,
+            humidity {{ states('sensor.nws_klga_humidity') }}%,
+            wind {{ states('sensor.nws_klga_wind_speed') }} mph,
+            visibility {{ states('sensor.nws_klga_visibility') }} mi.
+            Give Gabriel exactly one specific outdoor activity suggestion based on these conditions.
+            One sentence. Be direct: "Good day for X" or "Skip the run, Y instead." Nothing else.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Check conditions before heading out.') | truncate(200, true, '…', 0) | trim }}
+            {% else %}
+              Check conditions before heading out.
+            {% endif %}
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Today's tip 🌤"
+          message: "{{ reply }}"
+
+  # 6. Energy Evening Digest — qwen3.5 (analytical)
+  ai_energy_evening_digest:
+    alias: "AI – Energy Evening Digest"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "qwen3.5:latest"
+          prompt: >-
+            Smart home energy assistant. It is {{ now().strftime('%I:%M %p') }} on {{ now().strftime('%A, %B %d') }}.
+            Outside: {{ states('sensor.nws_klga_temperature') }}°F, humidity {{ states('sensor.nws_klga_humidity') }}%.
+            Write 2 sentences: one specific overnight energy-saving action (thermostat, standby devices, etc.),
+            and one reason why it matters given today's conditions. Be specific and actionable.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Turn off standby devices to save energy overnight.') | truncate(250, true, '…', 0) | trim }}
+            {% else %}
+              Turn off standby devices to save energy overnight.
+            {% endif %}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.ai_energy_digest_text
+        data:
+          value: "{{ reply }}"
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Energy tip 💡"
+          message: "{{ reply }}"
+
+  # 7. Unusual Motion Alert — gemma4:e4b (fast, calm)
+  ai_unusual_motion_alert:
+    alias: "AI – Unusual Motion Alert"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "gemma4:e4b"
+          prompt: >-
+            Motion was detected at home at {{ now().strftime('%I:%M %p') }}, an unusual hour.
+            Write one calm, factual alert sentence for Gabriel. Include the exact time.
+            Do not be alarmist. Just informational.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Motion detected at ' + now().strftime('%I:%M %p') + '.') | truncate(200, true, '…', 0) | trim }}
+            {% else %}
+              Motion detected at {{ now().strftime('%I:%M %p') }}.
+            {% endif %}
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Motion detected 🚨"
+          message: "{{ reply }}"
+          data:
+            push:
+              interruption-level: time-sensitive
+
+  # 8. Daily Motivation — llama3-lexi (casual, energizing)
+  ai_daily_motivation:
+    alias: "AI – Daily Motivation"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "llama3-lexi:latest"
+          prompt: >-
+            Write one motivational sentence for Gabriel to start his {{ now().strftime('%A') }}.
+            Genuine and energizing, not cheesy. Tailor it to the day of the week.
+            No quotation marks, no attribution. Just the sentence.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Make today count.') | truncate(200, true, '…', 0) | trim }}
+            {% else %}
+              Make today count.
+            {% endif %}
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "{{ now().strftime('%A') }} 🔥"
+          message: "{{ reply }}"
+
+  # 9. Jinja / HA Template Code Helper — huihui-qwen3-coder
+  ai_jinja_code_helper:
+    alias: "AI – Jinja Code Helper"
+    mode: single
+    sequence:
+      - variables:
+          request: "{{ states('input_text.ai_jinja_helper_request') | trim }}"
+      - service: rest_command.ollama_generate
+        data:
+          model: "huihui-qwen3-coder:latest"
+          prompt: >-
+            You are a Home Assistant Jinja2 and YAML expert.
+            Write a Home Assistant Jinja2 template or YAML snippet for this request: {{ request }}
+            Return only valid code. No explanation, no markdown fences, just the code.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('No code generated.') | truncate(255, true, '…', 0) | trim }}
+            {% else %}
+              Code generation unavailable.
+            {% endif %}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.ai_jinja_helper_output
+        data:
+          value: "{{ reply }}"
+
+  # 10. Weekly Home Intelligence Report — claude-sonnet-4-6-1m (complex analysis)
+  ai_weekly_home_report:
+    alias: "AI – Weekly Home Report"
+    mode: single
+    sequence:
+      - service: rest_command.ollama_generate
+        data:
+          model: "claude-sonnet-4-6-1m"
+          prompt: >-
+            You are a smart home intelligence analyst. Today is {{ now().strftime('%A, %B %d, %Y') }}.
+            Write a concise weekly home report for Gabriel with three clearly labeled sections:
+            WEATHER: Based on current readings ({{ states('sensor.nws_klga_temperature') }}°F,
+            humidity {{ states('sensor.nws_klga_humidity') }}%, wind {{ states('sensor.nws_klga_wind_speed') }} mph),
+            note any patterns or concerns for the coming week.
+            ENERGY: One specific, actionable energy-saving recommendation for this week.
+            OPTIMIZE: One concrete automation or routine improvement Gabriel should consider adding.
+            Keep the full report under 200 words. Be specific, insightful, and actionable.
+        response_variable: raw
+      - variables:
+          reply: >
+            {% if raw.status == 200 %}
+              {% set b = raw.content %}
+              {{ (b.response if b is mapping else (b | from_json).response) | default('Weekly report unavailable.') | truncate(255, true, '…', 0) | trim }}
+            {% else %}
+              Weekly report unavailable.
+            {% endif %}
+          alexa_target: >
+            {% set lc = expand(states.media_player)
+               | selectattr('attributes.last_called', 'eq', True)
+               | map(attribute='entity_id') | list | first | default('') %}
+            {{ lc if lc != '' else 'media_player.bedroom_echo_show_8' }}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.ai_weekly_report_text
+        data:
+          value: "{{ reply }}"
+      - service: notify.mobile_app_gabes_iphone
+        data:
+          title: "Weekly Home Report 📊"
+          message: "{{ reply }}"
+      - service: notify.alexa_media
+        data:
+          message: "Your weekly home report is ready. {{ reply | truncate(150, true, '.', 0) }}"
+          target: "{{ alexa_target }}"
+          data:
+            type: announce
+
+# ── Automations ───────────────────────────────────────────────────────────────
+automation:
+
+  - alias: "AI Task – Morning Briefing"
+    id: ai_task_morning_briefing
+    trigger:
+      - platform: time
+        at: "08:00:00"
+    action:
+      - service: script.ai_morning_briefing
+
+  - alias: "AI Task – Arrival Welcome"
+    id: ai_task_arrival_welcome
+    trigger:
+      - platform: state
+        entity_id: person.gabrielchiappa
+        to: "home"
+        for:
+          seconds: 30
+    action:
+      - service: script.ai_arrival_welcome
+
+  - alias: "AI Task – Departure Checklist"
+    id: ai_task_departure_checklist
+    trigger:
+      - platform: state
+        entity_id: person.gabrielchiappa
+        from: "home"
+        to: "not_home"
+    action:
+      - service: script.ai_departure_checklist
+
+  - alias: "AI Task – Bedtime Check"
+    id: ai_task_bedtime_check
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: script.ai_bedtime_check
+
+  - alias: "AI Task – Weather Activity Tip"
+    id: ai_task_weather_tip
+    trigger:
+      - platform: time
+        at: "09:00:00"
+    action:
+      - service: script.ai_weather_activity_tip
+
+  - alias: "AI Task – Energy Evening Digest"
+    id: ai_task_energy_digest
+    trigger:
+      - platform: time
+        at: "20:00:00"
+    action:
+      - service: script.ai_energy_evening_digest
+
+  - alias: "AI Task – Unusual Motion Alert"
+    id: ai_task_unusual_motion
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.living_room_hub_motion
+          - binary_sensor.hue_motion_sensor_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "01:00:00"
+        before: "06:00:00"
+    action:
+      - service: script.ai_unusual_motion_alert
+
+  - alias: "AI Task – Daily Motivation"
+    id: ai_task_daily_motivation
+    trigger:
+      - platform: time
+        at: "07:30:00"
+    action:
+      - service: script.ai_daily_motivation
+
+  - alias: "AI Task – Jinja Code Helper"
+    id: ai_task_jinja_helper
+    trigger:
+      - platform: state
+        entity_id: input_text.ai_jinja_helper_request
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | trim | length > 5 }}"
+    action:
+      - service: script.ai_jinja_code_helper
+
+  - alias: "AI Task – Weekly Home Report"
+    id: ai_task_weekly_report
+    trigger:
+      - platform: time
+        at: "09:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - sun
+    action:
+      - service: script.ai_weekly_home_report

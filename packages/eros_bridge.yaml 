@@ -1,0 +1,97 @@
+input_text:
+  eros_query:
+    name: "Eros Query"
+    max: 255
+    initial: "Give me a quick rundown of the home right now."
+
+  eros_response:
+    name: "Eros Response"
+    max: 255
+    initial: ""
+
+  eros_ollama_model:
+    name: "Eros – Ollama Model"
+    max: 64
+    initial: "deckard-gemma4e4b:latest"
+
+input_boolean:
+  eros_trigger:
+    name: "Eros"
+    initial: off
+
+rest_command:
+  ollama_generate:
+    url: "http://100.103.119.30:11434/api/generate"
+    method: POST
+    content_type: "application/json"
+    payload: >-
+      {
+        "model": "{{ model }}",
+        "prompt": "{{ prompt }}",
+        "stream": false
+      }
+
+script:
+  eros_ask:
+    alias: "Eros – Ask Ollama & Announce via Alexa"
+    mode: single
+    sequence:
+      - variables:
+          effective_query: >
+            {{ states('input_text.eros_query') | trim }}
+
+      - service: rest_command.ollama_generate
+        data:
+          model: "{{ states('input_text.eros_ollama_model') }}"
+          prompt: "{{ effective_query }}"
+        response_variable: ollama_raw
+
+      - variables:
+          eros_reply: >
+            {% if ollama_raw.status == 200 %}
+              {% set body = ollama_raw.content %}
+              {% if body is mapping %}
+                {{ body.response | default('No response from Eros.') | truncate(450, True, '…', 0) | trim }}
+              {% else %}
+                {{ (body | from_json).response | default('No response from Eros.') | truncate(450, True, '…', 0) | trim }}
+              {% endif %}
+            {% else %}
+              Eros is unavailable. Ollama returned status {{ ollama_raw.status }}.
+            {% endif %}
+
+          announce_target: >
+            {% set last_called = expand(states.media_player)
+                | selectattr('attributes.last_called', 'eq', True)
+                | map(attribute='entity_id')
+                | list | first | default('') %}
+            {{ last_called if last_called != '' else 'media_player.bedroom_echo_show_8' }}
+
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.eros_response
+        data:
+          value: "{{ eros_reply }}"
+
+      - service: notify.alexa_media
+        data:
+          message: "{{ eros_reply }}"
+          target: "{{ announce_target }}"
+          data:
+            type: announce
+
+automation:
+  - alias: "Eros – Fire when Alexa flips the trigger"
+    id: eros_bridge_alexa_trigger
+    trigger:
+      - platform: state
+        entity_id: input_boolean.eros_trigger
+        to: "on"
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.eros_ask
+      - wait_template: "{{ not is_state('script.eros_ask', 'running') }}"
+        timeout: "00:01:30"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.eros_trigger

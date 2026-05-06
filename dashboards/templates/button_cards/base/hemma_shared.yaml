@@ -47,6 +47,28 @@ hemma_shared:
       const mobilePrefix = variables.preload_mobile_shared_prefix || 'mobile';
       const mobilePhases = variables.preload_mobile_shared_phases || ['morning', 'day', 'night'];
 
+      if (!window._hemmaTabBarHidden) {
+        window._hemmaTabBarHidden = true;
+        const hide = () => {
+          const root = document.querySelector('home-assistant')
+            ?.shadowRoot?.querySelector('home-assistant-main')
+            ?.shadowRoot?.querySelector('ha-panel-lovelace')
+            ?.shadowRoot?.querySelector('hui-root')
+            ?.shadowRoot;
+          if (!root) return;
+          const id = 'hemma-hide-tabs';
+          if (!root.getElementById(id)) {
+            const s = document.createElement('style');
+            s.id = id;
+            s.textContent = '.tab-bar, paper-tabs, ha-tabs, mwc-tab-bar, [class*="tabBar"], [part="tabs"] { display: none !important; height: 0 !important; overflow: hidden !important; }';
+            root.appendChild(s);
+          }
+        };
+        hide();
+        setTimeout(hide, 500);
+        setTimeout(hide, 1500);
+      }
+
       if (!window.hemmaPreloadedImages) {
         window.hemmaPreloadedImages = [];
 

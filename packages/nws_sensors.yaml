@@ -1,0 +1,52 @@
+# packages/nws_sensors.yaml
+# Template sensors extracted from NWS weather entity attributes.
+
+template:
+  - sensor:
+      - name: "NWS KLGA Temperature"
+        unique_id: nws_klga_temperature
+        unit_of_measurement: "°F"
+        device_class: temperature
+        state_class: measurement
+        state: >
+          {{ state_attr('weather.nws_40_7375014_73_9020664_klga', 'temperature') | float(0) | round(1) }}
+        availability: >
+          {{ states('weather.nws_40_7375014_73_9020664_klga') not in ['unknown','unavailable'] }}
+
+      - name: "NWS KLGA Humidity"
+        unique_id: nws_klga_humidity
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        state: >
+          {{ state_attr('weather.nws_40_7375014_73_9020664_klga', 'humidity') | float(0) | round(0) | int }}
+        availability: >
+          {{ states('weather.nws_40_7375014_73_9020664_klga') not in ['unknown','unavailable'] }}
+
+      - name: "NWS KLGA Wind Speed"
+        unique_id: nws_klga_wind_speed
+        unit_of_measurement: "mph"
+        state_class: measurement
+        state: >
+          {{ state_attr('weather.nws_40_7375014_73_9020664_klga', 'wind_speed') | float(0) | round(1) }}
+        availability: >
+          {{ states('weather.nws_40_7375014_73_9020664_klga') not in ['unknown','unavailable'] }}
+
+      - name: "NWS KLGA Pressure"
+        unique_id: nws_klga_pressure
+        unit_of_measurement: "inHg"
+        device_class: atmospheric_pressure
+        state_class: measurement
+        state: >
+          {{ state_attr('weather.nws_40_7375014_73_9020664_klga', 'pressure') | float(0) | round(2) }}
+        availability: >
+          {{ states('weather.nws_40_7375014_73_9020664_klga') not in ['unknown','unavailable'] }}
+
+      - name: "NWS KLGA Visibility"
+        unique_id: nws_klga_visibility
+        unit_of_measurement: "mi"
+        state_class: measurement
+        state: >
+          {{ state_attr('weather.nws_40_7375014_73_9020664_klga', 'visibility') | float(0) | round(1) }}
+        availability: >
+          {{ states('weather.nws_40_7375014_73_9020664_klga') not in ['unknown','unavailable'] }}

@@ -1,0 +1,55 @@
+# zones.yaml
+# ============================================================================
+# Custom zones for presence automations.
+# zone.home is managed by HA core (Settings → System → General).
+#
+# Automation use cases by zone:
+#   manhattan      → commute arrived/departed, adjust home mode
+#   midtown        → arrived at work area, Waze destination reference
+#   laguardia      → travel departure/arrival alerts (closest airport)
+#   jfk            → travel departure/arrival alerts
+#   newark         → travel departure/arrival alerts
+#   woodside       → "left the neighborhood" vs just leaving home
+# ============================================================================
+
+- name: Manhattan
+  icon: mdi:city
+  latitude: 40.782865
+  longitude: -73.965355
+  radius: 3000
+  passive: false
+
+- name: Midtown
+  icon: mdi:office-building
+  latitude: 40.758896
+  longitude: -73.985130
+  radius: 500
+  passive: false
+
+- name: LaGuardia Airport
+  icon: mdi:airplane
+  latitude: 40.776578
+  longitude: -73.872608
+  radius: 1000
+  passive: false
+
+- name: JFK Airport
+  icon: mdi:airplane
+  latitude: 40.641766
+  longitude: -73.777813
+  radius: 1500
+  passive: false
+
+- name: Newark Airport
+  icon: mdi:airplane
+  latitude: 40.689247
+  longitude: -74.174925
+  radius: 1500
+  passive: false
+
+- name: Woodside
+  icon: mdi:map-marker-radius
+  latitude: 40.754000
+  longitude: -73.925000
+  radius: 1200
+  passive: false

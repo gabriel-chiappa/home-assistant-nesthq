@@ -1,6 +1,7 @@
 # Sensitive files - never commit these
 secrets.yaml
 .storage/
+.cloud/
 
 # Database files
 *.db
@@ -34,3 +35,34 @@ Thumbs.db
 
 # Backup files
 *.bak
+
+# Credential files
+.env
+
+# Home Assistant local/private state
+.storage/
+.cloud/
+.HA_VERSION
+.ha_run.lock
+*.log
+
+# Secrets / generated config
+secrets.yaml
+known_devices.yaml
+home-assistant.log*
+home-assistant_v2.db*
+home-assistant_v2.db-*
+
+# Add-ons / local tool state
+.claude/
+.ssh/
+token_extractor_venv/
+Xiaomi-cloud-tokens-extractor-master/
+xiaomi-token-extractor.zip
+
+# Python/cache
+__pycache__/
+*.pyc
+
+# Temporary/user files
+image/

@@ -14,14 +14,14 @@ hemma_curtain:
     action: toggle
 
   icon_tap_action:
-    action: call-service
-    service: |
+    action: perform-action
+    perform_action: |
       [[[
         const s = (entity?.state || '').toLowerCase();
         return ['open', 'opening'].includes(s) ? 'cover.close_cover' : 'cover.open_cover';
       ]]]
-    service_data:
-      entity_id: '[[[ return entity.entity_id ]]]'
+    action_data:
+      entity_id: '[[[ return entity?.entity_id ]]]'
 
   entity_picture: |
     [[[

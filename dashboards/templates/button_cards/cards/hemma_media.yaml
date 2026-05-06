@@ -101,7 +101,7 @@ hemma_media:
 
   icon_tap_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   styles:
     grid:

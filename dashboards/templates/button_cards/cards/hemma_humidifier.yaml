@@ -9,19 +9,19 @@ hemma_humidifier:
 
   tap_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   hold_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   icon_tap_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   icon_hold_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   entity_picture: |
     [[[

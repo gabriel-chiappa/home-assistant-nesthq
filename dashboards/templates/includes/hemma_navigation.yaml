@@ -438,8 +438,8 @@ card:
           label: Home
           icon: mdi:home-variant
 
-        - url: /dashboard-hemma/living-room
-          label: Living Room
+        - url: /dashboard-hemma/office
+          label: Office
           icon: mdi:sofa
           badge:
             show: >
@@ -465,6 +465,14 @@ card:
                   && !!_s && hass.states[_s]?.state === 'on';
               ]]]
             color: '#ffd700'
+
+        - url: /dashboard-hemma/bathroom
+          label: Bathroom
+          icon: mdi:shower
+
+        - url: /dashboard-hemma/outside
+          label: Outside
+          icon: mdi:weather-partly-cloudy
 
         - label: Scenes
           icon: mdi:layers

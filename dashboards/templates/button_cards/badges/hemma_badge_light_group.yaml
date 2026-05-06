@@ -213,9 +213,9 @@ hemma_badge_light_group:
                 ]]]
 
   tap_action:
-    action: call-service
-    service: input_select.select_option
-    service_data:
+    action: perform-action
+    perform_action: input_select.select_option
+    action_data:
       entity_id: input_select.hemma_expanded_row
       option: >
         [[[

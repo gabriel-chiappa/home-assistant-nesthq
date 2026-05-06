@@ -294,9 +294,9 @@ hemma_badge_media_player:
                   - width: var(--badge-media-btn-icon-size-current, var(--badge-media-btn-icon-size, 28px))
                   - height: var(--badge-media-btn-icon-size-current, var(--badge-media-btn-icon-size, 28px))
               tap_action:
-                action: call-service
-                service: media_player.media_play_pause
-                service_data:
+                action: perform-action
+                perform_action: media_player.media_play_pause
+                action_data:
                   entity_id: '[[[ return [variables.entity, ...(variables.group_entities||[])].filter(Boolean) ]]]'
               extra_styles: |
                 ha-ripple,
@@ -340,9 +340,9 @@ hemma_badge_media_player:
                   - width: var(--badge-media-btn-icon-size-current, var(--badge-media-btn-icon-size, 28px))
                   - height: var(--badge-media-btn-icon-size-current, var(--badge-media-btn-icon-size, 28px))
               tap_action:
-                action: call-service
-                service: media_player.media_next_track
-                service_data:
+                action: perform-action
+                perform_action: media_player.media_next_track
+                action_data:
                   entity_id: '[[[ return [variables.entity, ...(variables.group_entities||[])].filter(Boolean) ]]]'
               extra_styles: |
                 ha-ripple,

@@ -49,7 +49,7 @@ hemma_light:
         const hasBrowserMod = typeof window.browser_mod !== 'undefined';
         return (isMobile || !hasBrowserMod) ? 'more-info' : 'fire-dom-event';
       ]]]
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
     browser_mod:
       service: browser_mod.popup
       data:
@@ -90,7 +90,7 @@ hemma_light:
             - type: custom:more-info-card
               view_layout:
                 grid-area: main
-              entity: "[[[ return entity.entity_id ]]]"
+              entity: "[[[ return entity?.entity_id ]]]"
               card_mod:
                 style:
                   $: |

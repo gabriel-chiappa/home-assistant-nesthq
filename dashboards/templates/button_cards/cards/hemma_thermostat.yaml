@@ -35,9 +35,9 @@ hemma_thermostat:
     ]]]
 
   tap_action:
-    action: call-service
-    service: input_boolean.toggle
-    service_data:
+    action: perform-action
+    perform_action: input_boolean.toggle
+    action_data:
       entity_id: |
         [[[
           return variables.thermostat_toggle_helper;
@@ -45,13 +45,13 @@ hemma_thermostat:
 
   hold_action:
     action: more-info
-    entity: '[[[ return entity.entity_id ]]]'
+    entity: '[[[ return entity?.entity_id ]]]'
 
   custom_fields:
     temp_puck:
       card:
         type: custom:button-card
-        entity: '[[[ return entity.entity_id ]]]'
+        entity: '[[[ return entity?.entity_id ]]]'
         show_name: false
         show_icon: false
         show_state: false
@@ -161,7 +161,7 @@ hemma_thermostat:
       card:
         type: custom:button-card
         template: [hemma_entity]
-        entity: '[[[ return entity.entity_id ]]]'
+        entity: '[[[ return entity?.entity_id ]]]'
         show_entity_picture: false
         show_icon: false
         name: Target Temp
@@ -173,9 +173,9 @@ hemma_thermostat:
             return Number.isInteger(n) ? `${n}°` : `${n.toFixed(1)}°`;
           ]]]
         tap_action:
-          action: call-service
-          service: input_boolean.toggle
-          service_data:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          action_data:
             entity_id: |
               [[[
                 return variables.thermostat_toggle_helper;
@@ -253,9 +253,9 @@ hemma_thermostat:
                   show_entity_picture: true
                   entity_picture: /local/hemma/icons/increase.svg
                   tap_action:
-                    action: call-service
-                    service: input_number.increment
-                    service_data:
+                    action: perform-action
+                    perform_action: input_number.increment
+                    action_data:
                       entity_id: input_number.hemma_thermostat_target_temperature
                   styles:
                     card:
@@ -298,10 +298,10 @@ hemma_thermostat:
                   show_state: false
                   name: SET
                   tap_action:
-                    action: call-service
-                    service: climate.set_temperature
-                    service_data:
-                      entity_id: '[[[ return entity.entity_id ]]]'
+                    action: perform-action
+                    perform_action: climate.set_temperature
+                    action_data:
+                      entity_id: '[[[ return entity?.entity_id ]]]'
                       temperature: |
                         [[[
                           const st = states['input_number.hemma_thermostat_target_temperature'];
@@ -353,9 +353,9 @@ hemma_thermostat:
                   show_entity_picture: true
                   entity_picture: /local/hemma/icons/decrease.svg
                   tap_action:
-                    action: call-service
-                    service: input_number.decrement
-                    service_data:
+                    action: perform-action
+                    perform_action: input_number.decrement
+                    action_data:
                       entity_id: input_number.hemma_thermostat_target_temperature
                   styles:
                     card:

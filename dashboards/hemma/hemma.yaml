@@ -4,24 +4,9 @@
 
 button_card_templates: !include_dir_merge_named /config/dashboards/templates/button_cards
 
-# kiosk_mode:
-#   hide_header: true
-#   hide_sidebar: false
-#   hide_dialog_light_settings_actions: true
-#   hide_dialog_logbook: true
-#   mobile_settings:
-#     hide_header: true
-#     hide_sidebar: false
-#   user_settings:
-#     - users:
-#         - "tablet"
-#       hide_header: true
-#       hide_sidebar: false
-#       hide_dialog_logbook: true
-#       hide_dialog_light_settings_actions: true
-#       hide_dialog_header_breadcrumb_navigation: true
-#       hide_dialog_header_history: true
-#       hide_dialog_attributes: true
+kiosk_mode:
+  hide_header: true
+  hide_sidebar: false
 
 views:
   # ------------------------------------------------------

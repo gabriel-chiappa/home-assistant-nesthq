@@ -1,5 +1,18 @@
 homeassistant:
   packages: !include_dir_named packages
+  external_url: "https://homeassistant.uxnify.com"
+  internal_url: "http://100.93.194.21:8123"
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 172.30.0.0/16
+    - 172.31.0.0/16
+    - 192.168.1.0/24
+    - fe80::/10
+    - 100.64.0.0/10
 # Loads default set of integrations. Do not remove.
 default_config:
 
