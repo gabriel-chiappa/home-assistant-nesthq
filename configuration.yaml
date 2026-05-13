@@ -1,7 +1,7 @@
 homeassistant:
   packages: !include_dir_named packages
   external_url: "https://homeassistant.uxnify.com"
-  internal_url: "http://100.93.194.21:8123"
+  internal_url: "http://10.0.1.30:8123"
 
 http:
   use_x_forwarded_for: true
@@ -11,6 +11,8 @@ http:
     - 172.30.0.0/16
     - 172.31.0.0/16
     - 192.168.1.0/24
+    - 10.0.1.0/24
+    - 10.0.2.0/24
     - fe80::/10
     - 100.64.0.0/10
 # Loads default set of integrations. Do not remove.
@@ -19,6 +21,8 @@ default_config:
 # Load frontend themes from the themes folder
 frontend:
   themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /hacsfiles/kiosk-mode/kiosk-mode.js
 
 automation: !include automations.yaml
 script: !include scripts.yaml
@@ -40,6 +44,9 @@ lovelace:
       url: "/local/navbar-sidebar-offset/navbar-sidebar-offset.js"
     - type: "css"
       url: "/local/hemma/fonts/hanken-grotesk.css"
+    - url: "/local/custom-lovelace/swipe-card/swipe-card.js"
+      type: "module"
+      
   dashboards:
     dashboard-hemma:
       mode: yaml

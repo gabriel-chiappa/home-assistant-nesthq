@@ -1,1 +1,570 @@
-[]
+- id: ai_task_dashboard_summary
+  alias: AI Task – Dashboard Summary
+  description: Generates an AI summary of the house status for the dashboard greeting
+    card
+  triggers:
+  - trigger: time_pattern
+    minutes: /15
+  - trigger: homeassistant
+    event: start
+  conditions: []
+  actions:
+  - action: ai_task.generate_data
+    data:
+      task_name: Dashboard Summary
+      instructions: 'Summarize the house status in 1-2 short sentences for a dashboard
+        greeting. Use ONLY the data below — never invent or assume. Mention alerts
+        if any. Max 200 characters. No emojis.
+
+
+        HOUSE STATUS:
+
+        - Weather: {{ states(''weather.forecast_home'') }}, {{ state_attr(''weather.forecast_home'',
+        ''temperature'') }}°{{ state_attr(''weather.forecast_home'', ''temperature_unit'')
+        }}
+
+        - Lights on: {{ states.light | selectattr(''state'', ''eq'', ''on'') | list
+        | count }} ({{ states.light | selectattr(''state'', ''eq'', ''on'') | map(attribute=''name'')
+        | list | join('', '') }})
+
+        - Security: {{ states(''alarm_control_panel.aqara_hub_m2_security_system'')
+        }}
+
+        - Motion: {{ states.binary_sensor | selectattr(''attributes.device_class'',
+        ''defined'') | selectattr(''attributes.device_class'', ''eq'', ''motion'')
+        | selectattr(''state'', ''eq'', ''on'') | map(attribute=''name'') | list |
+        join('', '') or ''none'' }}
+
+        - Problem sensors: {{ states.binary_sensor | selectattr(''attributes.device_class'',
+        ''defined'') | selectattr(''attributes.device_class'', ''in'', [''problem'',''smoke'',''gas'',''moisture'',''tamper''])
+        | selectattr(''state'', ''eq'', ''on'') | map(attribute=''name'') | list |
+        join('', '') or ''none'' }}
+
+        - Offline systems: {% set offline = namespace(items=[]) %}{% if states(''alarm_control_panel.aqara_hub_m2_security_system'')
+        == ''unavailable'' %}{% set offline.items = offline.items + [''Aqara Hub (security
+        + sensors)''] %}{% endif %}{% if states.media_player | selectattr(''state'',
+        ''eq'', ''unavailable'') | list | count > 3 %}{% set offline.items = offline.items
+        + [''Multiple media players''] %}{% endif %}{{ offline.items | join('', '')
+        or ''all systems online'' }}
+
+        - Persistent notifications: {{ states.persistent_notification | list | count
+        }}'
+      entity_id: ai_task.dashboard_summary
+    response_variable: ai_response
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.ai_dashboard_summary_text
+    data:
+      value: '{{ ai_response.data[:255] }}'
+  mode: single
+  variables:
+    _cafe_metadata:
+      version: 1
+      nodes:
+        trigger_time_pattern:
+          x: 100
+          y: 50
+        trigger_ha_start:
+          x: 100
+          y: 175
+        action_ai_generate:
+          x: 400
+          y: 100
+        action_set_text:
+          x: 700
+          y: 100
+      graph_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+      graph_version: 1
+      strategy: native
+- id: '1778555792627'
+  alias: Daily Automatic Backups – Morning, Afternoon & Night
+  description: Creates automatic backups 3 times a day (08:00, 14:00, 20:00) using
+    the   configured backup settings (AWS S3, 10-backup retention).
+  triggers:
+  - trigger: time
+    at: 08:00:00
+  - trigger: time
+    at: '14:00:00'
+  - trigger: time
+    at: '20:00:00'
+  actions:
+  - action: backup.create_automatic
+    metadata: {}
+    data: {}
+- id: '1778579575146'
+  alias: 'Bathroom Automation: Lights On & Off'
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.motion_sensor
+    from: 'off'
+    to: 'on'
+  - trigger: occupancy.detected
+    target:
+      area_id: bathroom
+    options:
+      behavior: last
+  actions:
+  - alias: Turn on the light
+    action: light.turn_on
+    target:
+      entity_id: light.bathroom
+  - alias: Wait until there is no motion from device
+    wait_for_trigger:
+    - trigger: state
+      entity_id:
+      - binary_sensor.motion_sensor
+      - binary_sensor.aqara_motion_and_light_sensor_p2_occupancy
+      from:
+      - 'on'
+      to:
+      - 'off'
+  - alias: Wait the number of seconds that has been set
+    delay: 120
+  - alias: Turn off the light
+    action: light.turn_off
+    target:
+      entity_id: light.bathroom
+  mode: restart
+  max_exceeded: silent
+- id: '1778581786414'
+  alias: 'Bathroom Automation: Adaptive Lights + Google Mini'
+  description: Adaptive bathroom automation using Hue mirror lights, bathroom light
+    group, Aqara P1/P2 motion/occupancy, P2 illuminance, and Google Home Mini.
+  triggers:
+  - id: p1_motion_detected
+    trigger: state
+    entity_id: binary_sensor.motion_sensor
+    from: 'off'
+    to: 'on'
+  - id: p2_occupancy_detected
+    trigger: state
+    entity_id: binary_sensor.aqara_motion_and_light_sensor_p2_occupancy
+    from: 'off'
+    to: 'on'
+  - id: bathroom_area_occupancy_detected
+    trigger: occupancy.detected
+    target:
+      area_id: bathroom
+    options:
+      behavior: last
+  conditions: []
+  actions:
+  - alias: Calculate bathroom profile
+    variables:
+      bathroom_lux: '{{ states(''sensor.aqara_motion_and_light_sensor_p2_illuminance'')
+        | float(-1) }}'
+      hour_decimal: '{{ now().hour + (now().minute / 60) }}'
+      sun_elevation: '{{ state_attr(''sun.sun'', ''elevation'') | float(-90) }}'
+      bathroom_profile: "{% set h = now().hour + (now().minute / 60) %} {% set lux
+        = states('sensor.aqara_motion_and_light_sensor_p2_illuminance') | float(-1)
+        %} {% set sun = state_attr('sun.sun', 'elevation') | float(-90) %} {% if h
+        >= 23 or h < 5 %}\n  night\n{% elif h >= 5 and h < 8 %}\n  early_morning\n{%
+        elif h >= 8 and h < 11.5 and lux >= 120 %}\n  bright_morning\n{% elif h >=
+        8 and h < 17 and lux >= 350 %}\n  daylight_skip\n{% elif h >= 8 and h < 17
+        and sun > 15 %}\n  daytime\n{% elif h >= 17 and h < 21 %}\n  evening\n{% else
+        %}\n  late_evening\n{% endif %}"
+      should_turn_lights_on: '{{ bathroom_profile != ''daylight_skip'' }}'
+      group_brightness_pct: "{% if bathroom_profile == 'night' %}\n  7\n{% elif bathroom_profile
+        == 'early_morning' %}\n  22\n{% elif bathroom_profile == 'bright_morning'
+        %}\n  35\n{% elif bathroom_profile == 'daytime' %}\n  65\n{% elif bathroom_profile
+        == 'evening' %}\n  80\n{% elif bathroom_profile == 'late_evening' %}\n  35\n{%
+        else %}\n  0\n{% endif %}"
+      mirror_left_brightness_pct: "{% if bathroom_profile == 'night' %}\n  5\n{% elif
+        bathroom_profile == 'early_morning' %}\n  18\n{% elif bathroom_profile ==
+        'bright_morning' %}\n  25\n{% elif bathroom_profile == 'daytime' %}\n  55\n{%
+        elif bathroom_profile == 'evening' %}\n  75\n{% elif bathroom_profile == 'late_evening'
+        %}\n  25\n{% else %}\n  0\n{% endif %}"
+      mirror_middle_brightness_pct: "{% if bathroom_profile == 'night' %}\n  4\n{%
+        elif bathroom_profile == 'early_morning' %}\n  20\n{% elif bathroom_profile
+        == 'bright_morning' %}\n  35\n{% elif bathroom_profile == 'daytime' %}\n  75\n{%
+        elif bathroom_profile == 'evening' %}\n  85\n{% elif bathroom_profile == 'late_evening'
+        %}\n  30\n{% else %}\n  0\n{% endif %}"
+      mirror_right_brightness_pct: "{% if bathroom_profile == 'night' %}\n  5\n{%
+        elif bathroom_profile == 'early_morning' %}\n  18\n{% elif bathroom_profile
+        == 'bright_morning' %}\n  25\n{% elif bathroom_profile == 'daytime' %}\n  55\n{%
+        elif bathroom_profile == 'evening' %}\n  75\n{% elif bathroom_profile == 'late_evening'
+        %}\n  25\n{% else %}\n  0\n{% endif %}"
+      color_temp_kelvin: "{% if bathroom_profile == 'night' %}\n  2200\n{% elif bathroom_profile
+        == 'early_morning' %}\n  2400\n{% elif bathroom_profile == 'bright_morning'
+        %}\n  3000\n{% elif bathroom_profile == 'daytime' %}\n  4000\n{% elif bathroom_profile
+        == 'evening' %}\n  3000\n{% else %}\n  2400\n{% endif %}"
+      off_delay_seconds: "{% if bathroom_profile == 'night' %}\n  300\n{% elif bathroom_profile
+        == 'early_morning' %}\n  210\n{% elif bathroom_profile == 'bright_morning'
+        %}\n  120\n{% elif bathroom_profile == 'daytime' %}\n  120\n{% else %}\n  180\n{%
+        endif %}"
+      max_occupied_minutes: "{% if bathroom_profile == 'night' %}\n  45\n{% else %}\n
+        \ 75\n{% endif %}"
+  - alias: Turn on adaptive Hue mirror lighting
+    if:
+    - condition: template
+      value_template: '{{ should_turn_lights_on | bool }}'
+    - condition: state
+      entity_id: light.bathroom
+      state: 'off'
+    then:
+    - alias: Left mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_left_lamp
+      data:
+        brightness_pct: '{{ mirror_left_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+    - alias: Middle mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_middle_lamp
+      data:
+        brightness_pct: '{{ mirror_middle_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+    - alias: Right mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_right_lamp
+      data:
+        brightness_pct: '{{ mirror_right_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+  - alias: Parallel bathroom behavior
+    parallel:
+    - alias: Google Mini morning brief prompt
+      sequence:
+      - condition: time
+        after: 09:00:00
+        before: '11:30:00'
+      - condition: state
+        entity_id: input_boolean.bathroom_morning_brief_prompted_today
+        state: 'off'
+      - alias: Wait so it does not talk immediately on entry
+        delay: 00:01:15
+      - alias: Confirm someone is still in the bathroom
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'on')\n  or
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'on')\n}}"
+      - alias: Mark morning prompt as used today
+        action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.bathroom_morning_brief_prompted_today
+      - alias: Snapshot Google speaker state
+        action: scene.create
+        data:
+          scene_id: bathroom_google_home_mini_before_brief
+          snapshot_entities:
+          - media_player.bathroom_speaker_2
+      - alias: Set Google speaker volume to 30 percent
+        action: media_player.volume_set
+        continue_on_error: true
+        target:
+          entity_id: media_player.bathroom_speaker_2
+        data:
+          volume_level: 0.3
+      - alias: Ask if user wants morning brief
+        action: tts.speak
+        continue_on_error: true
+        target:
+          entity_id: tts.google_translate_en_com
+        data:
+          media_player_entity_id: media_player.bathroom_speaker_2
+          message: Good morning. Want your morning brief? Say, Hey Google, play my
+            morning briefing.
+          cache: false
+      - alias: Wait before restoring speaker
+        delay: 00:00:20
+      - alias: Restore Google speaker state
+        action: scene.turn_on
+        continue_on_error: true
+        target:
+          entity_id: scene.bathroom_google_home_mini_before_brief
+    - alias: Long visit comfort lighting
+      sequence:
+      - delay: 00:10:00
+      - alias: Confirm bathroom is still occupied
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'on')\n  or
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'on')\n}}"
+      - alias: Do not brighten late at night
+        condition: template
+        value_template: '{{ bathroom_profile != ''night'' }}'
+      - alias: Gently improve lighting for longer bathroom visit
+        action: light.turn_on
+        target:
+          entity_id:
+          - light.bathroom_mirror_left_lamp
+          - light.bathroom_mirror_middle_lamp
+          - light.bathroom_mirror_right_lamp
+        data:
+          brightness_pct: "{% if bathroom_profile in ['early_morning', 'bright_morning']
+            %}\n  45\n{% elif bathroom_profile == 'daytime' %}\n  75\n{% else %}\n
+            \ 55\n{% endif %}"
+          color_temp_kelvin: "{% if bathroom_profile == 'daytime' %}\n  4000\n{% else
+            %}\n  3000\n{% endif %}"
+          transition: 8
+    - alias: Main occupancy wait and turn-off logic
+      sequence:
+      - alias: Wait until both motion and occupancy are clear
+        wait_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+        timeout:
+          minutes: '{{ max_occupied_minutes | int }}'
+        continue_on_timeout: true
+      - alias: Stop if sensors never cleared
+        condition: template
+        value_template: '{{ wait.completed }}'
+      - alias: Adaptive off delay
+        delay:
+          seconds: '{{ off_delay_seconds | int }}'
+      - alias: Final safety check before dimming
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+      - alias: Soft dim warning before off
+        if:
+        - condition: state
+          entity_id: light.bathroom
+          state: 'on'
+        then:
+        - action: light.turn_on
+          target:
+            entity_id:
+            - light.bathroom_mirror_left_lamp
+            - light.bathroom_mirror_middle_lamp
+            - light.bathroom_mirror_right_lamp
+          data:
+            brightness_pct: 3
+            color_temp_kelvin: 2200
+            transition: 5
+        - delay: 00:00:12
+      - alias: Final safety check before off
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+      - alias: Turn off bathroom lights
+        action: light.turn_off
+        target:
+          entity_id: light.bathroom
+        data:
+          transition: 2
+  mode: restart
+  max_exceeded: silent
+- id: '1778581936192'
+  alias: 'Bathroom Automation: Adaptive Hue Lights'
+  description: Adaptive bathroom lighting using Hue mirror lights, bathroom light
+    group, Aqara motion/occupancy sensors, and illuminance.
+  triggers:
+  - id: p1_motion_detected
+    trigger: state
+    entity_id: binary_sensor.motion_sensor
+    from: 'off'
+    to: 'on'
+  - id: p2_occupancy_detected
+    trigger: state
+    entity_id: binary_sensor.aqara_motion_and_light_sensor_p2_occupancy
+    from: 'off'
+    to: 'on'
+  - id: bathroom_area_occupancy_detected
+    trigger: occupancy.detected
+    target:
+      area_id: bathroom
+    options:
+      behavior: last
+  conditions: []
+  actions:
+  - alias: Calculate bathroom lighting profile
+    variables:
+      bathroom_lux: '{{ states(''sensor.aqara_motion_and_light_sensor_p2_illuminance'')
+        | float(-1) }}'
+      hour_decimal: '{{ now().hour + (now().minute / 60) }}'
+      sun_elevation: '{{ state_attr(''sun.sun'', ''elevation'') | float(-90) }}'
+      bathroom_profile: "{% set h = now().hour + (now().minute / 60) %} {% set lux
+        = states('sensor.aqara_motion_and_light_sensor_p2_illuminance') | float(-1)
+        %} {% set sun = state_attr('sun.sun', 'elevation') | float(-90) %} {% if h
+        >= 23 or h < 5 %}\n  night\n{% elif h >= 5 and h < 8 %}\n  early_morning\n{%
+        elif h >= 8 and h < 11.5 and lux >= 120 %}\n  bright_morning\n{% elif h >=
+        8 and h < 17 and lux >= 350 %}\n  daylight_skip\n{% elif h >= 8 and h < 17
+        and sun > 15 %}\n  daytime\n{% elif h >= 17 and h < 21 %}\n  evening\n{% else
+        %}\n  late_evening\n{% endif %}"
+      should_turn_lights_on: '{{ bathroom_profile != ''daylight_skip'' }}'
+      mirror_left_brightness_pct: "{% if bathroom_profile == 'night' %}\n  5\n{% elif
+        bathroom_profile == 'early_morning' %}\n  18\n{% elif bathroom_profile ==
+        'bright_morning' %}\n  25\n{% elif bathroom_profile == 'daytime' %}\n  55\n{%
+        elif bathroom_profile == 'evening' %}\n  75\n{% elif bathroom_profile == 'late_evening'
+        %}\n  25\n{% else %}\n  0\n{% endif %}"
+      mirror_middle_brightness_pct: "{% if bathroom_profile == 'night' %}\n  4\n{%
+        elif bathroom_profile == 'early_morning' %}\n  20\n{% elif bathroom_profile
+        == 'bright_morning' %}\n  35\n{% elif bathroom_profile == 'daytime' %}\n  75\n{%
+        elif bathroom_profile == 'evening' %}\n  85\n{% elif bathroom_profile == 'late_evening'
+        %}\n  30\n{% else %}\n  0\n{% endif %}"
+      mirror_right_brightness_pct: "{% if bathroom_profile == 'night' %}\n  5\n{%
+        elif bathroom_profile == 'early_morning' %}\n  18\n{% elif bathroom_profile
+        == 'bright_morning' %}\n  25\n{% elif bathroom_profile == 'daytime' %}\n  55\n{%
+        elif bathroom_profile == 'evening' %}\n  75\n{% elif bathroom_profile == 'late_evening'
+        %}\n  25\n{% else %}\n  0\n{% endif %}"
+      color_temp_kelvin: "{% if bathroom_profile == 'night' %}\n  2200\n{% elif bathroom_profile
+        == 'early_morning' %}\n  2400\n{% elif bathroom_profile == 'bright_morning'
+        %}\n  3000\n{% elif bathroom_profile == 'daytime' %}\n  4000\n{% elif bathroom_profile
+        == 'evening' %}\n  3000\n{% else %}\n  2400\n{% endif %}"
+      off_delay_seconds: "{% if bathroom_profile == 'night' %}\n  300\n{% elif bathroom_profile
+        == 'early_morning' %}\n  210\n{% elif bathroom_profile == 'bright_morning'
+        %}\n  120\n{% elif bathroom_profile == 'daytime' %}\n  120\n{% else %}\n  180\n{%
+        endif %}"
+      max_occupied_minutes: "{% if bathroom_profile == 'night' %}\n  45\n{% else %}\n
+        \ 75\n{% endif %}"
+  - alias: Turn on adaptive Hue mirror lighting
+    if:
+    - condition: template
+      value_template: '{{ should_turn_lights_on | bool }}'
+    - condition: state
+      entity_id: light.bathroom
+      state: 'off'
+    then:
+    - alias: Left mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_left_lamp
+      data:
+        brightness_pct: '{{ mirror_left_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+    - alias: Middle mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_middle_lamp
+      data:
+        brightness_pct: '{{ mirror_middle_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+    - alias: Right mirror lamp
+      action: light.turn_on
+      target:
+        entity_id: light.bathroom_mirror_right_lamp
+      data:
+        brightness_pct: '{{ mirror_right_brightness_pct | int }}'
+        color_temp_kelvin: '{{ color_temp_kelvin | int }}'
+        transition: 1
+  - alias: Parallel bathroom lighting behavior
+    parallel:
+    - alias: Long visit comfort lighting
+      sequence:
+      - alias: Wait 10 minutes
+        delay: 00:10:00
+      - alias: Confirm bathroom is still occupied
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'on')\n  or
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'on')\n}}"
+      - alias: Do not brighten late at night
+        condition: template
+        value_template: '{{ bathroom_profile != ''night'' }}'
+      - alias: Gently improve lighting for longer bathroom visit
+        action: light.turn_on
+        target:
+          entity_id:
+          - light.bathroom_mirror_left_lamp
+          - light.bathroom_mirror_middle_lamp
+          - light.bathroom_mirror_right_lamp
+        data:
+          brightness_pct: "{% if bathroom_profile in ['early_morning', 'bright_morning']
+            %}\n  45\n{% elif bathroom_profile == 'daytime' %}\n  75\n{% else %}\n
+            \ 55\n{% endif %}"
+          color_temp_kelvin: "{% if bathroom_profile == 'daytime' %}\n  4000\n{% else
+            %}\n  3000\n{% endif %}"
+          transition: 8
+    - alias: Main occupancy wait and turn-off logic
+      sequence:
+      - alias: Wait until both motion and occupancy are clear
+        wait_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+        timeout:
+          minutes: '{{ max_occupied_minutes | int }}'
+        continue_on_timeout: true
+      - alias: Stop if sensors never cleared
+        condition: template
+        value_template: '{{ wait.completed }}'
+      - alias: Adaptive off delay
+        delay:
+          seconds: '{{ off_delay_seconds | int }}'
+      - alias: Final safety check before dimming
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+      - alias: Soft dim warning before off
+        if:
+        - condition: state
+          entity_id: light.bathroom
+          state: 'on'
+        then:
+        - action: light.turn_on
+          target:
+            entity_id:
+            - light.bathroom_mirror_left_lamp
+            - light.bathroom_mirror_middle_lamp
+            - light.bathroom_mirror_right_lamp
+          data:
+            brightness_pct: 3
+            color_temp_kelvin: 2200
+            transition: 5
+        - delay: 00:00:12
+      - alias: Final safety check before off
+        condition: template
+        value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'off')\n  and
+          is_state('binary_sensor.aqara_motion_and_light_sensor_p2_occupancy', 'off')\n}}"
+      - alias: Turn off bathroom lights
+        action: light.turn_off
+        target:
+          entity_id: light.bathroom
+        data:
+          transition: 2
+  mode: restart
+  max_exceeded: silent
+- id: '1778648404979'
+  alias: Wake on LAN - Samsung Bedroom TV
+  description: Wake on LAN - Samsung Bedroom TV
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.samsung_bedroom_tv_2
+    to: 'on'
+    from:
+    - 'off'
+    - unavailable
+  conditions: []
+  actions:
+  - action: wake_on_lan.send_magic_packet
+    data:
+      mac: a0:d0:5b:51:6a:7e
+  mode: single
+- id: debug_bedroom_floor_lamp
+  alias: DEBUG - Bedroom Floor Lamp Turned On
+  description: Debug automation to capture context when bedroom floor lamp turns on
+  triggers:
+  - platform: state
+    entity_id: light.bedroom_floor_lamp
+    to: 'on'
+  actions:
+  - action: persistent_notification.create
+    data:
+      title: Bedroom Floor Lamp turned ON
+      message: 'Time: {{ now() }}
+
+        Entity: {{ trigger.entity_id }}
+
+        From: {{ trigger.from_state.state if trigger.from_state else ''unknown'' }}
+
+        To: {{ trigger.to_state.state if trigger.to_state else ''unknown'' }}
+
+        Context ID: {{ trigger.to_state.context.id }}
+
+        User ID: {{ trigger.to_state.context.user_id }}
+
+        Parent ID: {{ trigger.to_state.context.parent_id }}
+
+        Brightness: {{ state_attr(''light.bedroom_floor_lamp'', ''brightness'') }}'
+  - action: system_log.write
+    data:
+      level: warning
+      logger: debug.bedroom_floor_lamp
+      message: Bedroom Floor Lamp ON. context_id={{ trigger.to_state.context.id }},
+        user_id={{ trigger.to_state.context.user_id }}, parent_id={{ trigger.to_state.context.parent_id
+        }}, brightness={{ state_attr('light.bedroom_floor_lamp', 'brightness') }}
+  mode: queued

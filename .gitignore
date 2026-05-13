@@ -40,14 +40,9 @@ Thumbs.db
 .env
 
 # Home Assistant local/private state
-.storage/
-.cloud/
 .HA_VERSION
 .ha_run.lock
-*.log
-
-# Secrets / generated config
-secrets.yaml
+.cache/
 known_devices.yaml
 home-assistant.log*
 home-assistant_v2.db*
@@ -59,10 +54,6 @@ home-assistant_v2.db-*
 token_extractor_venv/
 Xiaomi-cloud-tokens-extractor-master/
 xiaomi-token-extractor.zip
-
-# Python/cache
-__pycache__/
-*.pyc
 
 # Temporary/user files
 image/

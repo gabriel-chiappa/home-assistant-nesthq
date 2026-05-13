@@ -1,0 +1,24 @@
+CREATE TABLE events (
+	event_id INTEGER NOT NULL, 
+	event_type CHAR(0), 
+	event_data CHAR(0), 
+	origin CHAR(0), 
+	origin_idx SMALLINT, 
+	time_fired CHAR(0), 
+	time_fired_ts FLOAT, 
+	context_id CHAR(0), 
+	context_user_id CHAR(0), 
+	context_parent_id CHAR(0), 
+	data_id INTEGER, 
+	context_id_bin BLOB, 
+	context_user_id_bin BLOB, 
+	context_parent_id_bin BLOB, 
+	event_type_id INTEGER, 
+	PRIMARY KEY (event_id), 
+	FOREIGN KEY(data_id) REFERENCES event_data (data_id), 
+	FOREIGN KEY(event_type_id) REFERENCES event_types (event_type_id)
+);
+CREATE INDEX ix_events_context_id_bin ON events (context_id_bin);
+CREATE INDEX ix_events_event_type_id_time_fired_ts ON events (event_type_id, time_fired_ts);
+CREATE INDEX ix_events_time_fired_ts ON events (time_fired_ts);
+CREATE INDEX ix_events_data_id ON events (data_id);
