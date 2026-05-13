@@ -43,6 +43,8 @@ Thumbs.db
 .HA_VERSION
 .ha_run.lock
 .cache/
+.hass_configurator_prefs.json
+.shopping_list.json
 known_devices.yaml
 home-assistant.log*
 home-assistant_v2.db*
