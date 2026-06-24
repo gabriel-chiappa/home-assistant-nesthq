@@ -238,7 +238,7 @@
         entity_id: input_boolean.bathroom_morning_brief_prompted_today
         state: 'off'
       - alias: Wait so it does not talk immediately on entry
-        delay: 00:01:15
+        delay: 00:00:45
       - alias: Confirm someone is still in the bathroom
         condition: template
         value_template: "{{\n  is_state('binary_sensor.motion_sensor', 'on')\n  or
